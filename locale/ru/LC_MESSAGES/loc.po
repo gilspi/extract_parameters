@@ -1,0 +1,132 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: myapp 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-02-22 12:00+0000\n"
+"PO-Revision-Date: 2025-02-22 12:00+0000\n"
+"Last-Translator: Your Name <your.email@example.com>\n"
+"Language-Team: Russian\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: GUI - Окно приложения
+msgid "NGSPICE Simulator"
+msgstr "NGSPICE Simulator"
+
+#: GUI - Кнопка выбора файла (уже короткая)
+msgid "File:/..."
+msgstr "Файл:/..."
+
+#: GUI - Кнопки левой панели (сокращаем только для кнопок)
+msgid "Применить изменения"
+msgstr "Применить изменения"
+
+msgid "Запустить симуляцию"
+msgstr "Запустить симуляцию"
+
+#: GUI - Метки переключателей (сокращаем)
+msgid "Log Scale:"
+msgstr "Лог.:"
+
+msgid "Grid:"
+msgstr "Сетка:"
+
+#: GUI - Кнопки правой панели (сокращаем)
+msgid "Reset Scale"
+msgstr "Сброс"
+
+msgid "Save Graph"
+msgstr "Сохр. гр."
+
+msgid "Save CSV"
+msgstr "Сохр. CSV"
+
+#: Handlers – остальные строки (оставляем полными)
+msgid "No File Selected"
+msgstr "Файл не выбран"
+
+msgid "Выберите файл параметров"
+msgstr "Выберите файл параметров"
+
+msgid "Выберите модель (.va)"
+msgstr "Выберите модель (.va)"
+
+msgid "Ошибка"
+msgstr "Ошибка"
+
+msgid "Неверная конфигурация."
+msgstr "Неверная конфигурация."
+
+msgid "Выбрана конфигурация:"
+msgstr "Выбрана конфигурация:"
+
+msgid "Путь к файлу параметров:"
+msgstr "Путь к файлу параметров:"
+
+msgid "Путь к модели:"
+msgstr "Путь к модели:"
+
+msgid "Путь к spice-схеме:"
+msgstr "Путь к spice-схеме:"
+
+msgid "Parsing file selected:"
+msgstr "Выбран файл:"
+
+msgid "Модель выбрана:"
+msgstr "Модель выбрана:"
+
+msgid "Спice-схема выбрана:"
+msgstr "Spice-схема выбрана:"
+
+msgid "Уведомление"
+msgstr "Уведомление"
+
+msgid "Ошибка при загрузке параметров."
+msgstr "Ошибка при загрузке параметров."
+
+msgid "Модель не выбрана."
+msgstr "Модель не выбрана."
+
+msgid "Изменения успешно применены в "
+msgstr "Изменения успешно применены в "
+
+msgid "Не удалось применить изменения."
+msgstr "Не удалось применить изменения."
+
+msgid "Сначала выберите файл параметров."
+msgstr "Сначала выберите файл параметров."
+
+msgid "Сначала выберите SPICE-файл."
+msgstr "Сначала выберите SPICE-файл."
+
+msgid "Предупреждение"
+msgstr "Предупреждение"
+
+msgid "Ошибка симуляции: %s"
+msgstr "Ошибка симуляции: %s"
+
+msgid "Сохранение CSV"
+msgstr "Сохранение CSV"
+
+msgid "Симуляция не была выполнена, нет данных для сохранения."
+msgstr "Симуляция не была выполнена, нет данных для сохранения."
+
+msgid "Ошибка сохранения CSV:"
+msgstr "Ошибка сохранения CSV:"
+
+msgid "Warning: No data on graph, switching scale but no effect on plot."
+msgstr "Предупреждение: Нет данных на графике, масштаб изменён без эффекта."
+
+msgid "Warning: No valid Y data for log scale!"
+msgstr "Предупреждение: Нет корректных Y данных для логарифмической шкалы!"
+
+msgid "Parameter toggled. New state:"
+msgstr "Параметр переключён. Новое состояние:"
+
+msgid "Enabled"
+msgstr "Включено"
+
+msgid "Disabled"
+msgstr "Выключено"
