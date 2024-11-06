@@ -1,0 +1,20 @@
+code/*.sh
+code/*.bat
+
+###########################
+code/**/**/Changelog
+code/**/**/NOTICE
+code/**/**/VERSION
+code/**/**/discipline.h
+code/**/**/IP_NOTICE_DISCLAIMER_LICENSE
+code/**/**/*.txt
+##########################
+
+# Verilog-A
+code/mextram/vacode/openvaf
+
+# Виртуальные окружения
+venv/
+
+# Временно недоступные
+examples/**/Xyce
