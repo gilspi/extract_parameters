@@ -1,10 +1,13 @@
 import os
 import subprocess
 import shutil
+import matplotlib.pyplot as plt
+import pandas as pd
 
 # установленные библиотеки
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, filedialog
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 # пользовательские библиотеки
 from config import PROJECT_PATH, OSDILIBS_PATH
@@ -24,7 +27,7 @@ EXAMPLES_PATH = os.path.join(PROJECT_PATH, f"examples/{FOLDER_NAME}/ngspice/")
 SPICE_FILE = "npn_ic_ib_is_vb.sp"  # FIXME: нужно сделать так чтобы можно было пользователь мог подгружать схему
 ####################################################################################
 
-spice_file = find_file(SPICE_FILE)
+spice_file = None  # find_file(SPICE_FILE)
 # print(spice_file)
 
 
@@ -52,7 +55,7 @@ def move_osdi_file(src: str = VAMODEL_PATH, osdi_model: str = OSDIMODEL_NAME):
     shutil.move(source_path, OSDILIBS_PATH)
 
 
-def run_ngspice_interactive(spice_file: str):
+def run_ngspice_interactive(spice_file: str, canvas, fig):
     process = subprocess.Popen(["ngspice", "-b", spice_file])
     process.wait()
     
@@ -61,13 +64,34 @@ def run_ngspice_interactive(spice_file: str):
     except Exception as e:
         print(f"Ошибка завершения ngspice: {e}")
 
-    plot_simulation.plot_simulation_data()
+    plot_simulation.plot_simulation_data(canvas, fig)
 
 
-def start_simulation():
+def choose_spice_file():
+    """Выбор SPICE-файла для симуляции."""
+    return filedialog.askopenfilename(
+        initialdir=EXAMPLES_PATH, title="Выберите SPICE-файл",
+        filetypes=(("SPICE files", "*.sp *.cir"), ("All files", "*.*"))
+    )
+
+
+def select_spice_file():
+    global spice_file
+    spice_file = choose_spice_file()
+    if spice_file:
+        messagebox.showinfo("Файл выбран", f"Выбранный файл: {spice_file}")
+
+
+
+def start_simulation(canvas, fig, spice_file):
     """
     TODO: запускает симуляцию в NGSPICE и проверяем ошибки
     """
+    if not spice_file:
+        messagebox.showwarning("Ошибка",
+                               "Пожалуйста, выберите SPICE файл")
+        return
+    
     is_value = entry_is.get() or "1.0e-15"
     nff_value = entry_nff.get() or "1.0"
     nfr_value = entry_nfr.get() or "1.0"
@@ -85,10 +109,11 @@ def start_simulation():
     move_osdi_file()
     
     try:
-        run_ngspice_interactive(spice_file)
+        run_ngspice_interactive(spice_file, canvas, fig)
         messagebox.showinfo("Успех", "Симуляция завершена успешно.")
     except Exception as e:
         messagebox.showerror("Ошибка", f"Ошибка симуляции: {e}")
+
 
 
 root = tk.Tk()
@@ -106,11 +131,20 @@ tk.Label(root, text="nfr:").grid(row=2, column=0, padx=5, pady=5)
 entry_nfr = tk.Entry(root)
 entry_nfr.grid(row=2, column=1, padx=5, pady=5)
 
-run_button = tk.Button(root, text="Запустить симуляцию", command=start_simulation)
-run_button.grid(row=3, column=0, columnspan=2, pady=10)
+run_button = tk.Button(root, text="Запустить симуляцию",
+                       command=lambda:start_simulation(canvas, fig, spice_file))
+run_button.grid(row=3, column=0, columnspan=2)
+
+choose_button = tk.Button(root, text="Выбрать схему",
+                          command=select_spice_file)
+choose_button.grid(row=4, column=0, columnspan=2)
 
 exit_button = tk.Button(root, text="Выход", command=root.quit)
-exit_button.grid(row=4, column=0, columnspan=2, pady=10)
+exit_button.grid(row=5, column=0, columnspan=2)
+
+fig = plt.Figure(figsize=(6,4), dpi=100)
+canvas = FigureCanvasTkAgg(fig, master=root)
+canvas.get_tk_widget().grid(row=0, column=2, rowspan=6, padx=10, pady=5)
 
 root.mainloop()
 
