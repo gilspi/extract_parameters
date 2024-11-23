@@ -1,4 +1,5 @@
 import os
+import re
 import subprocess
 from utils import find_file, modify_parameters
 from plot_simulation import plot_simulation_data
