@@ -1,0 +1,35 @@
+1. Cделать клон репы git clone https://github.com/danchitnis/ngspice-sf-mirror.git
+2. До установить нужные пакеты
+sudo apt-get -y install libxaw7-dev libreadline-dev bison flex automake libtool autoconf gcc build-essential
+3. mv ngspice-sf-mirror/ ngspice/
+4. cd ngspice
+5. Запустить билд ./autogen.sh
+6. Запустить ./configure --with-x --enable-xspice --disable-debug --enable-cider --enable-predictor --enable-osdi --enable-openmp
+7. make
+8. sudo make install
+9. Проверить ngspice --version
+
+---------------------------------------------------------
+python 3.10
+
+1. sudo apt update
+2. sudo apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev wget libbz2-dev
+3. wget https://www.python.org/ftp/python/3.10.0/Python-3.10.0.tgz
+4. tar -xvf Python-3.10.0.tgz
+5. cd Python-3.10.0
+6. sudo ./configure --enable-optimizations
+7. sudo make -j 2
+8. nproc
+9. sudo make altinstall
+10. python3.10 --version
+----------------------------------------------------------
+openvaf
+
+1. https://openvaf.semimod.de/download/
+2. tar -xzvf openvaf_23_5_0_linux_amd64.tar.gz
+3. Получаем наш openvaf теперь его нужно закинуть в папки code/
+----------------------------------------------------------
+Установить все лабы из requirements.txt
+
+
+----------------------------------------------------------
