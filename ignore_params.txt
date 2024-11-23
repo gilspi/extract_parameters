@@ -1,0 +1,111 @@
+version
+tref
+// resistance parameters
+re       
+rbv
+rcc
+rcblx
+rcbli
+// epilayer dc parameters
+rcv
+scrcv
+ihc
+axi
+vdc      
+// EB junction capacitance parameters
+cje
+vde      
+pe
+xcje
+cbeo
+// CB junction capacitance parameters
+cjc
+vdcctc
+pc
+swvchc
+swvjunc
+xp       
+makdown for CB junction leakage parameters (not avalanche of IN)
+vbrcb
+pbrcb
+frevcb
+swjbrcb
+// transit time parameters
+mtau 
+taue
+taub   
+tepi
+taur
+tauex
+nex
+// heterojunction parameters
+deg
+// neutral base recombination parameter
+xrec
+// charge partition parameters
+xqb
+ke  
+// general temperature scaling parameters
+aqbose
+ae
+ab
+aepi
+aepiex
+aex
+ac
+acx
+acbl
+vgb
+vgbnbrqs
+vgbnbr
+vgbnbrs
+vgknbr
+vgc
+vge
+vgcx
+vgj
+vgzeb 
+avgeb 
+tvgeb 
+vgzcb 
+avgcb 
+tvgcb 
+dvgte 
+dais
+tnff 
+tnfr 
+tbavl 
+dtmax 
+// 1/f noise parameters
+af    
+afn
+kf    
+kfn
+// avalanche noise switch
+kavl
+// correlated noise parameters
+kc
+iss
+icss
+iks
+ikcs
+cjs
+vds
+ps
+vgs
+as
+asub
+xisubi
+swvsch
+// self heating parameters
+swnlsh
+rth
+cth
+ath
+// reliability modeling parameters
+isibrel        
+nfibrel
+vexlim
+p0starlim
+pwlim
+minr

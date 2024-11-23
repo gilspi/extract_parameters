@@ -5,6 +5,7 @@ PROJECT_PATH = os.path.dirname(os.path.abspath(__file__))
 # print(PROJECT_PATH)
 OSDILIBS_PATH = os.path.join(PROJECT_PATH, "osdilibs/")
 # print(OSDILIBS_PATH)
+IGNORE_PARAMS_FILE = os.path.join(PROJECT_PATH, "ignore_params.txt")
 
 # TODO: нужно выполнять поиск файла с помощью os
 # TODO: в дальнейшем пользователь должен просто подгружать модель из окна GUI

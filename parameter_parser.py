@@ -1,72 +1,70 @@
-import os
 import re
+import os
+
 
 class ParameterParser:
-    def __init__(self, model_path):
+    def __init__(self, file_path, ignore_file=None):
         """
         Инициализация парсера параметров.
 
         Args:
-            model_path (str): Путь к папке модели (например, code/mextram/vacode).
+            file_path (str): Путь к файлу parameters.inc или модели .va.
+            ignore_file (str): Путь к файлу, содержащему параметры для игнорирования.
         """
-        self.model_path = model_path
-        self.parameters = []
+        self.file_path = file_path
+        self.ignore_file = ignore_file
+        self.ignore_params = self._load_ignore_params()
 
-    def parse_parameters_file(self):
-        """Парсинг файла parameters.inc."""
-        parameters_file = os.path.join(self.model_path, "parameters.inc")
-        if not os.path.exists(parameters_file):
-            raise FileNotFoundError(f"Файл {parameters_file} не найден.")
+    def _load_ignore_params(self):
+        """
+        Загружает список параметров для игнорирования из файла.
 
-        with open(parameters_file, "r") as file:
-            for line in file:
-                if line.startswith("MPR"):
-                    match = re.match(
-                        r'^MPR\w+\(\s*([\w]+)\s*,\s*([\w.+-]+)\s*,\s*"([^"]*)"\s*,\s*([\w.+-]+)\s*,\s*([\w.+-]+)\s*,\s*"(.*)"\s*\)',
-                        line
-                    )
-                    if match:
-                        self.parameters.append({
-                            "name": match.group(1),
-                            "default_value": match.group(2),
-                            "units": match.group(3),
-                            "min_value": match.group(4),
-                            "max_value": match.group(5),
-                            "description": match.group(6)
-                        })
-        return self.parameters
-
-    def parse_va_file(self):
-        """Парсинг модели .va."""
-        va_files = [f for f in os.listdir(self.model_path) if f.endswith(".va")]
-        if not va_files:
-            raise FileNotFoundError("Файлы .va в указанной папке не найдены.")
-
-        va_file_path = os.path.join(self.model_path, va_files[0])
-        with open(va_file_path, "r") as file:
-            for line in file:
-                if line.startswith("MPR"):
-                    match = re.match(
-                        r'^MPR\w+\(\s*([\w]+)\s*,\s*([\w.+-]+)\s*,\s*"([^"]*)"\s*,\s*([\w.+-]+)\s*,\s*([\w.+-]+)\s*,\s*"(.*)"\s*\)',
-                        line
-                    )
-                    if match:
-                        self.parameters.append({
-                            "name": match.group(1),
-                            "default_value": match.group(2),
-                            "units": match.group(3),
-                            "min_value": match.group(4),
-                            "max_value": match.group(5),
-                            "description": match.group(6)
-                        })
-        return self.parameters
+        Returns:
+            set: Набор имен параметров для игнорирования.
+        """
+        if not self.ignore_file or not os.path.exists(self.ignore_file):
+            return set()
+        with open(self.ignore_file, 'r') as f:
+            return set(line.strip() for line in f if line.strip())
 
     def parse(self):
         """
-        Основной метод парсинга. Сначала ищет parameters.inc,
-        если файла нет, обрабатывает .va файл.
+        Парсит параметры из файла parameters.inc или модели .va.
+
+        Returns:
+            list: Список параметров в виде словарей.
         """
-        try:
-            return self.parse_parameters_file()
-        except FileNotFoundError:
-            return self.parse_va_file()
+        parameters = []
+        pattern = re.compile(
+            r"`MPR\w+\(\s*(\w+)\s*,\s*([\d.eE+-]+)\s*,\s*\"(.*?)\"\s*,?\s*([\d.eE+-]*)\s*,?\s*([\d.eE+-]*)\s*,?\s*\"(.*?)\"\s*\)"
+        )
+
+        with open(self.file_path, 'r') as file:
+            for line in file:
+                match = pattern.search(line)
+                if match:
+                    name, default_value, units, min_value, max_value, description = match.groups()
+
+                    # Если параметр в списке игнорируемых, пропускаем его
+                    if name in self.ignore_params:
+                        continue
+
+                    parameters.append({
+                        "name": name,
+                        "default_value": float(default_value),
+                        "units": units,
+                        "min_value": float(min_value) if min_value else None,
+                        "max_value": float(max_value) if max_value else None,
+                        "description": description,
+                    })
+        return parameters
+
+
+# Пример использования
+if __name__ == "__main__":
+    parser = ParameterParser(
+        "/home/gilspi/Desktop/progs/extract_parameters/code/mextram/vacode/parameters.inc",
+        ignore_file="/home/gilspi/Desktop/progs/extract_parameters/ignore_params.txt"
+    )
+    result = parser.parse()
+    print(result)
