@@ -83,21 +83,70 @@ class SimulationRunner:
         except Exception as e:
             raise RuntimeError(f"Ошибка симуляции: {e}")
 
-    def apply_changes_to_file(self, parameters):
-        """
-        Применяет изменения к выбранному файлу (parameters.inc или .va).
+    def apply_changes_to_file(self, current_parameters, target_file):
+        if not os.path.exists(target_file):
+            raise FileNotFoundError(f"Файл {target_file} не найден.")
 
-        Args:
-            parameters (dict): Словарь параметров для записи.
-        """
-        file_path = os.path.join(self.model_path, self.vamodel_name)
-        with open(file_path, 'r') as file:
+        # Чтение исходного содержимого файла
+        with open(target_file, 'r') as file:
             lines = file.readlines()
 
-        with open(file_path, 'w') as file:
-            for line in lines:
-                for name, value in parameters.items():
-                    if line.strip().startswith(f"`MPR") and f"({name}" in line:
-                        # Заменяем значение параметра
-                        line = re.sub(r'(\w+)\s*,\s*([\d.eE+-]+)', f'{name}, {value}', line, count=1)
-                file.write(line)
+        # Создаём карту для быстрого поиска строк по параметрам
+        parameter_lines = {param_name: None for param_name in current_parameters}
+        for i, line in enumerate(lines):
+            for param_name in current_parameters:
+                if re.search(rf"`MPR\w+\(\s*{re.escape(param_name)}\s*,", line):
+                    parameter_lines[param_name] = i
+
+        # Обновляем только строки с параметрами, которые нужно изменить
+        for param_name, line_index in parameter_lines.items():
+            if line_index is not None:
+                line = lines[line_index]
+                print(f"Найдена строка для обновления: {line.strip()}")  # Отладочная информация
+
+                # Регулярное выражение для поиска и замены значения параметра
+                match = re.search(
+                    rf"(\s*`MPR\w+\(\s*{re.escape(param_name)}\s*,\s*)([-\d.eE+]+)",
+                    line
+                )
+                if match:
+                    prefix = match.group(1)  # Часть строки до значения
+                    updated_line = f"{prefix}{current_parameters[param_name]}" + line[match.end():]
+                    print(f"Обновлённая строка: {updated_line.strip()}")  # Отладочная информация
+                    lines[line_index] = updated_line
+
+        # Запись обратно в файл
+        with open(target_file, 'w') as file:
+            file.writelines(lines)
+
+        print(f"Файл {target_file} успешно обновлён.")
+
+
+
+
+if __name__ == "__main__":
+    # Путь к тестовому файлу модели
+    # test_model_path = "/home/gilspi/Desktop/progs/extract_parameters/code/ASMHEMT/vacode/asmhemt.va"
+    test_model_path = "/home/gilspi/Desktop/progs/extract_parameters/code/mextram/vacode/parameters.inc"
+
+    # Создаём параметры для изменения
+    """test_parameters = {
+        "voff": "3.0",  # Новое значение
+        "ute": "-10.0",  # Новое значение
+        "gamma0fp1": "2.23e-12",  # Новое значение
+    }"""
+    test_parameters = {
+        "is": "3.0",  # Новое значение
+        "nff": "-10.0",  # Новое значение
+        "nfr": "2.23e-12",  # Новое значение
+    }
+
+    # Создаём экземпляр SimulationRunner
+    runner = SimulationRunner(model_path=os.path.dirname(test_model_path), vamodel_name=os.path.basename(test_model_path))
+
+    # Тестируем перезапись файла
+    try:
+        runner.apply_changes_to_file(current_parameters=test_parameters, target_file=test_model_path)
+        print(f"Файл {test_model_path} успешно обновлён.")
+    except Exception as e:
+        print(f"Ошибка при обновлении файла: {e}")
