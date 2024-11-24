@@ -18,7 +18,7 @@ class NGSPICESimulatorApp:
         # Переменные для отображения файлов и работы с параметрами
         self.parsing_file = tk.StringVar(value="Не выбран")
         self.simulation_runner = None
-        self.parameter_entries = {}
+        self.parameter_entries = []
 
         # Создание интерфейса
         self.create_interface()
@@ -91,7 +91,7 @@ class NGSPICESimulatorApp:
             filetypes=(("INC and VA files", "*.inc *.va"), ("All files", "*.*"))
         )
         if parsing_file:
-            self.parsing_file.set(os.path.basename(parsing_file))
+            self.parsing_file.set(parsing_file)  # Сохраняем полный путь
             try:
                 self.update_parameters(parsing_file)
             except Exception as e:
@@ -114,7 +114,7 @@ class NGSPICESimulatorApp:
             for widget in parent_frame.winfo_children():
                 widget.destroy()
 
-            self.parameter_entries = {}
+            self.parameter_entries = []  # Очистка списка параметров
 
             # Добавляем новые параметры
             for i, param in enumerate(parameters):
@@ -122,7 +122,9 @@ class NGSPICESimulatorApp:
                 entry = tk.Entry(parent_frame)
                 entry.insert(0, str(param["default_value"]))
                 entry.grid(row=i, column=1, padx=5, pady=2)
-                self.parameter_entries[param["name"]] = entry
+
+                # Сохраняем ссылку на имя и поле ввода
+                self.parameter_entries.append({"name": param["name"], "entry": entry})
 
             # Устанавливаем SimulationRunner
             model_path = os.path.dirname(parsing_file)
@@ -133,21 +135,27 @@ class NGSPICESimulatorApp:
             raise RuntimeError(f"Ошибка парсинга параметров: {e}")
 
     def apply_changes(self):
-        """Применение изменений к выбранному файлу параметров."""
+        """Применяет изменения к выбранному файлу."""
         if not self.simulation_runner:
-            messagebox.showerror("Ошибка", "Сначала выберите файл параметров.")
+            messagebox.showerror("Ошибка", "Модель не выбрана.")
             return
 
-        # Собираем параметры
-        parameters = {}
-        for name, entry in self.parameter_entries.items():
-            parameters[name] = entry.get()
+        # Сбор текущих параметров из GUI
+        current_parameters = {}
+        for param in self.parameter_entries:
+            param_name = param["name"]
+            param_value = param["entry"].get()
+            current_parameters[param_name] = param_value
+
+        # Получаем полный путь к выбранному файлу
+        target_file = self.parsing_file.get()
 
         try:
-            self.simulation_runner.apply_changes_to_file(parameters)
-            messagebox.showinfo("Успех", "Изменения успешно применены.")
+            # Передаём изменения в SimulationRunner
+            self.simulation_runner.apply_changes_to_file(current_parameters, target_file)
+            messagebox.showinfo("Успех", f"Изменения успешно применены в {target_file}.")
         except Exception as e:
-            messagebox.showerror("Ошибка", f"Ошибка применения изменений: {e}")
+            messagebox.showerror("Ошибка", f"Не удалось применить изменения: {e}")
 
     def choose_spice_file(self):
         """Выбор SPICE-файла."""
@@ -177,6 +185,26 @@ class NGSPICESimulatorApp:
             messagebox.showinfo("Успех", "Симуляция завершена успешно.")
         except Exception as e:
             messagebox.showerror("Ошибка симуляции", f"Ошибка симуляции: {e}")
+
+    def create_parameter_entries(self, parameters):
+        """Создаёт поля ввода для параметров."""
+        if self.parameter_entries:
+            for param in self.parameter_entries:
+                param["entry"].destroy()  # Удаляем старые поля ввода
+            self.parameter_entries.clear()
+
+        for i, param in enumerate(parameters):
+            # Имя параметра
+            tk.Label(self.scrollable_frame, text=param["name"]).grid(row=i, column=0, sticky="w", padx=5, pady=2)
+            
+            # Поле ввода
+            entry = tk.Entry(self.scrollable_frame)
+            entry.insert(0, str(param["default_value"]))  # Заполняем значением по умолчанию
+            entry.grid(row=i, column=1, padx=5, pady=2)
+
+            # Сохраняем ссылки на имя и поле ввода
+            self.parameter_entries.append({"name": param["name"], "entry": entry})
+
 
 
 if __name__ == "__main__":
