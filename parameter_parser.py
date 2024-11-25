@@ -1,9 +1,32 @@
 import re
 import os
+from typing import List, Dict, Set, Optional, Protocol
 
+
+class IgnoreParamsLoader(Protocol):
+    def load_ignore_params(self) -> Set[str]:
+        pass
+
+
+class FileIgnoreParamsLoader:
+    def __init__(self, ignore_file: str) -> None:
+        self.ignore_file = ignore_file
+
+    def load_ignore_params(self) -> Set[str]:
+        """
+        Загружает список параметров для игнорирования из файла.
+
+        Returns:
+            Set[str]: Набор имен параметров для игнорирования.
+        """
+        if not self.ignore_file or not os.path.exists(self.ignore_file):
+            return set()
+        with open(self.ignore_file, 'r') as f:
+            return set(line.strip() for line in f if line.strip())
+        
 
 class ParameterParser:
-    def __init__(self, file_path, ignore_file=None):
+    def __init__(self, file_path: str, ignore_params_loader: IgnoreParamsLoader) -> None:
         """
         Инициализация парсера параметров.
 
@@ -12,29 +35,16 @@ class ParameterParser:
             ignore_file (str): Путь к файлу, содержащему параметры для игнорирования.
         """
         self.file_path = file_path
-        self.ignore_file = ignore_file
-        self.ignore_params = self._load_ignore_params()
+        self.ignore_params = ignore_params_loader.load_ignore_params()
 
-    def _load_ignore_params(self):
-        """
-        Загружает список параметров для игнорирования из файла.
-
-        Returns:
-            set: Набор имен параметров для игнорирования.
-        """
-        if not self.ignore_file or not os.path.exists(self.ignore_file):
-            return set()
-        with open(self.ignore_file, 'r') as f:
-            return set(line.strip() for line in f if line.strip())
-
-    def parse(self):
+    def parse(self) -> List[Dict[str, Optional[float]]]:
         """
         Парсит параметры из файла parameters.inc или модели .va.
 
         Returns:
             list: Список параметров в виде словарей.
         """
-        parameters = []
+        parameters: List[Dict[str, Optional[float]]] = []
         pattern = re.compile(
             r"`MPR\w+\(\s*(\w+)\s*,\s*([\d.eE+-]+)\s*,\s*\"(.*?)\"\s*,?\s*([\d.eE+-]*)\s*,?\s*([\d.eE+-]*)\s*,?\s*\"(.*?)\"\s*\)"
         )
@@ -45,7 +55,6 @@ class ParameterParser:
                 if match:
                     name, default_value, units, min_value, max_value, description = match.groups()
 
-                    # Если параметр в списке игнорируемых, пропускаем его
                     if name in self.ignore_params:
                         continue
 
@@ -60,11 +69,16 @@ class ParameterParser:
         return parameters
 
 
-# Пример использования
 if __name__ == "__main__":
+    """
+    Пример работы парсера
+    """
+    from config import PARAMETERS_FILE, IGNORE_PARAMS_FILE
+
+    ignore_params_loader = FileIgnoreParamsLoader(ignore_file=IGNORE_PARAMS_FILE)
     parser = ParameterParser(
-        "/home/gilspi/Desktop/progs/extract_parameters/code/mextram/vacode/parameters.inc",
-        ignore_file="/home/gilspi/Desktop/progs/extract_parameters/ignore_params.txt"
+        file_path=PARAMETERS_FILE,
+        ignore_params_loader=ignore_params_loader,
     )
     result = parser.parse()
     print(result)
