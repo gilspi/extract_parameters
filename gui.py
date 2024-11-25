@@ -4,7 +4,7 @@ from tkinter import messagebox, filedialog, ttk
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from simulation_runner import SimulationRunner
-from parameter_parser import ParameterParser
+from parameter_parser import ParameterParser, FileIgnoreParamsLoader
 from config import IGNORE_PARAMS_FILE
 
 
@@ -100,7 +100,8 @@ class NGSPICESimulatorApp:
     def update_parameters(self, parsing_file):
         """Обновление параметров на основе выбранного файла."""
         try:
-            parser = ParameterParser(parsing_file, IGNORE_PARAMS_FILE)
+            ignore_params_loader = FileIgnoreParamsLoader(ignore_file=IGNORE_PARAMS_FILE)
+            parser = ParameterParser(file_path=parsing_file, ignore_params_loader=ignore_params_loader)
             parameters = parser.parse()
 
             # Если параметров > 15, создаем область прокрутки

@@ -3,9 +3,14 @@ from gui import NGSPICESimulatorApp
 
 
 def main():
-    root = Tk()  # Создаем корневое окно Tkinter
-    app = NGSPICESimulatorApp(root)  # Передаем root в приложение
-    root.mainloop()  # Запускаем главный цикл
+    """
+    Основная функция для запуска приложения NGSPICE Simulator. 
+    Эта функция создает корневое окно Tkinter, инициализирует приложение NGSPICESimulatorApp, 
+    и запускает главный цикл Tkinter для обработки событий.
+    """
+    root = Tk()
+    app = NGSPICESimulatorApp(root)
+    root.mainloop()
 
 
 if __name__ == "__main__":
