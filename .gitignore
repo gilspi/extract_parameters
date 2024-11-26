@@ -13,7 +13,10 @@ code/**/**/*.txt
 ##########################
 
 # Verilog-A
-code/mextram/vacode/openvaf
+code/**/vacode/openvaf
+
+# osdilibs
+osdilibs/
 
 # Виртуальные окружения
 venv/
