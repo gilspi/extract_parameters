@@ -16,7 +16,7 @@ code/**/**/*.txt
 code/**/vacode/openvaf
 
 # osdilibs
-osdilibs/
+osdilibs/**/
 
 # Виртуальные окружения
 venv/
