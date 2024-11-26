@@ -28,7 +28,7 @@ class NGSPICESimulatorApp:
         # Выбор файла для парсинга параметров
         tk.Label(self.root, text=f"Файл:").grid(row=0, column=0, sticky="w")
         tk.Label(self.root, textvariable=self.parsing_file).grid(row=0, column=1, sticky="w")
-        tk.Button(self.root, text="Выбрать файл", command=self.choose_parsing_file).grid(row=0, column=2, sticky="w")
+        tk.Button(self.root, text="Выбрать файл", command=self.choose_parsing_file).grid(row=0, column=2, sticky="w")        
 
         # Создаем область параметров
         self.scrollable_frame = None
@@ -37,16 +37,18 @@ class NGSPICESimulatorApp:
         self.create_scrollable_frame()
 
         # Кнопки управления
-        tk.Button(self.root, text="Применить изменения", command=self.apply_changes).grid(
+        tk.Button(self.root, text="Выбрать модель", command=self.choose_model).grid(
             row=2, column=0, columnspan=2, pady=5, sticky="ew"
         )
-        tk.Button(self.root, text="Выбрать SPICE-файл", command=self.choose_spice_file).grid(
+        tk.Button(self.root, text="Применить изменения", command=self.apply_changes).grid(
             row=3, column=0, columnspan=2, pady=5, sticky="ew"
         )
-        tk.Button(self.root, text="Запустить симуляцию", command=self.start_simulation).grid(
+        tk.Button(self.root, text="Выбрать SPICE-файл", command=self.choose_spice_file).grid(
             row=4, column=0, columnspan=2, pady=5, sticky="ew"
         )
-
+        tk.Button(self.root, text="Запустить симуляцию", command=self.start_simulation).grid(
+            row=5, column=0, columnspan=2, pady=5, sticky="ew"
+        )
         # Поле для графика
         self.fig, self.canvas_plot = self.create_plot_area()
 
@@ -157,6 +159,24 @@ class NGSPICESimulatorApp:
             messagebox.showinfo("Успех", f"Изменения успешно применены в {target_file}.")
         except Exception as e:
             messagebox.showerror("Ошибка", f"Не удалось применить изменения: {e}")
+    
+    def choose_model(self):
+        """Выбор конкретной .va модели для использования."""
+        if not self.simulation_runner or not self.simulation_runner.model_path:
+            messagebox.showerror("Ошибка", "Сначала выберите файл параметров.")
+            return
+
+        model_file = filedialog.askopenfilename(
+            initialdir=self.simulation_runner.model_path,
+            title="Выберите модель (.va)",
+            filetypes=(("VA Model files", "*.va"), ("All files", "*.*"))
+        )
+
+        if model_file:
+            self.simulation_runner.set_model(model_file)
+            messagebox.showinfo("Модель выбрана", f"Модель: {os.path.basename(model_file)}")
+        else:
+            messagebox.showerror("Ошибка", "Выбор модели отменён.")
 
     def choose_spice_file(self):
         """Выбор SPICE-файла."""
