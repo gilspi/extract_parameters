@@ -22,7 +22,7 @@ aliasparam dtemp = dta;
 `endif
 
 // main current parameters
-`MPRoz( is             ,1.0e-15,"A"                                      ,"Saturation current of main current" )
+`MPRoz( is             ,0.1,"A"                                      ,"Saturation current of main current" )
 `MPRco( nff            ,1.0,""            ,1.0         ,inf          ,"Non-ideality factor of forward main current" )
 `MPRco( nfr            ,1.0,""            ,1.0         ,inf          ,"Non-ideality factor of reverse main current" )
 `MPRco( ik             ,0.1            ,"A"           ,1.0p        ,inf          ,"CE high injection knee current" )
@@ -36,7 +36,7 @@ aliasparam dtemp = dta;
 `MPRco( nbis           ,1.0            ,""            ,0.1         ,inf          ,"Non-ideality factor of ideal side wall base current" )
 `MPRcz( ibf            ,2.7f           ,"A"                                      ,"Saturation current of non-ideal forward base current" )
 `MPRco( mlf            ,2.0            ,""            ,0.1         ,inf          ,"Non-ideality factor of non-ideal forward base current" )
-`MPRcz( ibfs           ,0.0            ,"A"                                      ,"Saturation current of non-ideal side wall forward base current" )
+`MPRcz( ibfs           ,0.2            ,"A"                                      ,"Saturation current of non-ideal side wall forward base current" )
 `MPRco( mlfs           ,2.0            ,""            ,0.1         ,inf          ,"Non-ideality factor of non-ideal side wall forward base current" )
 // forward base current with swib1 = 1
 `MPIcc( swib1          ,0              ,""            ,0           ,1            ,"Switch of Ib1 and Ib1s model" )

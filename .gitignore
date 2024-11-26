@@ -1,5 +1,7 @@
+# Ignore Python cache files
 __pycache__/
 
+# Ignore shell and batch scripts
 code/*.sh
 code/*.bat
 
@@ -18,8 +20,17 @@ code/**/vacode/openvaf
 # osdilibs
 osdilibs/**/
 
-# Виртуальные окружения
+# Ignore virtual environments
 venv/
 
-# Временно недоступные
+# Temporarily unavailable examples
 examples/**/Xyce
+
+# Ignore specific modified files
+code/ASMHEMT/vacode/asmhemt.va
+code/mextram/vacode/parameters.inc
+osdilibs/bjt505.osdi
+simulation_data.txt
+
+# Ignore untracked file
+osdilibs/asmhemt.osdi
