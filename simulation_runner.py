@@ -2,7 +2,7 @@ import os
 import re
 import subprocess
 from utils import find_file, modify_parameters
-from plot_simulation import plot_simulation_data
+from plot_simulation import SimulationManager
 from parameter_parser import ParameterParser
 from config import OSDILIBS_PATH
 
@@ -73,6 +73,7 @@ class SimulationRunner:
             raise RuntimeError(f"Ошибка парсинга параметров: {e}")
 
     def run_simulation(self, spice_file, canvas, fig):
+        manager = SimulationManager()
         try:
             print("Запускаем пересборку osdi")
             self.rebuild_osdi()
@@ -82,7 +83,7 @@ class SimulationRunner:
             process = subprocess.Popen(["ngspice", "-b", spice_file])
             process.wait()
             print("Симуляция завершена. Отображаем график.")
-            plot_simulation_data(canvas, fig)
+            manager.run(canvas=canvas, fig=fig)
         except Exception as e:
             raise RuntimeError(f"Ошибка симуляции: {e}")
 
