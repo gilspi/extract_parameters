@@ -4,9 +4,11 @@ TODO: модуль не работает с разными моделями, п�
 """
 
 import subprocess
+import config
 import matplotlib.pyplot as plt
 import pandas as pd
-import config
+from typing import List, Optional
+import re
 
 
 class SimulationRunner:
@@ -102,40 +104,70 @@ class SimulationRunner:
 def plot_simulation_data(canvas, fig, filename="simulation_data.txt"):
     """Загружает данные из файла и отображает график на canvas."""
     try:
-        # Загрузка данных из файла симуляции
-        data = pd.read_csv(filename, sep='\s+', comment='I', skiprows=5, 
-                           names=["Index", "v_sweep", "i_vc", "i_vb", "i_vs"])
-        
-        # Преобразование колонок в числовой формат и удаление некорректных данных
-        data["v_sweep"] = pd.to_numeric(data["v_sweep"], errors='coerce')
-        data["i_vc"] = pd.to_numeric(data["i_vc"], errors='coerce')
-        data["i_vb"] = pd.to_numeric(data["i_vb"], errors='coerce')
-        data["i_vs"] = pd.to_numeric(data["i_vs"], errors='coerce')
-        
-        # Фильтрация данных
-        data = data.dropna()
-        data = data[(data["i_vc"] > 0) & (data["i_vb"] > 0) & (data["i_vs"] > 0)]
-        data = data[(data["v_sweep"] >= 0.2) & (data["v_sweep"] <= 1.4)]
+        print(f"Чтение файла: {filename}")
+        with open(filename, 'r') as f:
+            lines = f.readlines()
+            print(f"Строки из файла: {len(lines)}")
 
-        # Построение графика
-        fig.clear()
-        ax = fig.add_subplot(111)
-        ax.plot(data["v_sweep"], data["i_vb"], label="abs(i(vb))", color='blue')
-        ax.plot(data["v_sweep"], data["i_vs"], label="abs(i(vs))", color='orange')
-        ax.plot(data["v_sweep"], data["i_vc"], label="abs(i(vc))", color='red')
-        
-        # Настройки графика
-        ax.set_yscale("log")
-        ax.set_ylim(1e-12, 1)
-        ax.set_xlim(0.2, 1.4)
-        ax.set_xlabel("v-sweep (V)")
-        ax.set_ylabel("Current (A)")
-        ax.set_title("Current vs. Voltage Sweep")
-        ax.legend()
-        ax.grid(True, which="both", linestyle="--", linewidth=0.5)
+            # Попытка найти строку заголовка
+            header_line_index = None
+            for i, line in enumerate(lines):
+                if 'Index' in line and 'v-sweep' in line:
+                    header_line_index = i
+                    break
 
-        # Обновление canvas
-        canvas.draw()
+            if header_line_index is None:
+                raise ValueError("Не удалось найти строку заголовка в файле")
+
+            header_line = lines[header_line_index].strip()
+            print(f"Заголовок: {header_line}")
+            column_names = re.split(r'\s+', header_line)
+            print(f"Имена колонок: {column_names}")
+
+            # Загрузка данных из файла симуляции
+            data = pd.read_csv(filename, sep='\s+', comment='I', skiprows=header_line_index + 1, names=column_names)
+            print(f"Данные загружены: {data.head()}")
+
+            # Преобразование колонок в числовой формат и удаление некорректных данных
+            for column in column_names[1:]:
+                data[column] = pd.to_numeric(data[column], errors='coerce')
+            print(f"Данные после преобразования: {data.head()}")
+
+            # Фильтрация данных
+            data = data.dropna()
+            print(f"Данные после фильтрации: {data.head()}")
+
+            # Проверка, что fig не None
+            if fig is None:
+                raise ValueError("Параметр 'fig' не должен быть None")
+
+            # Построение графика
+            print("Построение графика")
+            fig.clear()
+            ax = fig.add_subplot(111)
+
+            for column in column_names[2:]:
+                ax.plot(data[column_names[1]], data[column], label=column)
+
+            # Настройки графика
+            ax.set_yscale("log")
+            ax.set_xlabel(column_names[1])
+            ax.set_ylabel("Current (A)")
+            ax.set_title("Current vs. Voltage Sweep")
+            ax.legend()
+            ax.grid(True, which="both", linestyle="--", linewidth=0.5)
+
+            # Обновление canvas
+            if canvas:
+                canvas.draw()
+            else:
+                print("Параметр 'canvas' равен None, пропуск обновления")
+
     except Exception as e:
-        # messagebox.showerror("Ошибка построения графика", f"Не удалось построить график: {e}")
         print(f"Ошибка построения графика: {e}")
+
+if __name__ == "__main__":
+    # Для отладки лучше использовать реальные объекты canvas и fig, например:
+    fig = plt.figure()
+    plot_simulation_data(None, fig)  # Используем 'fig' для отладки
+    plt.show()  # Показываем график для проверки
