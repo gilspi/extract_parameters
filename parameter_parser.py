@@ -8,8 +8,8 @@ class IgnoreParamsLoader(Protocol):
         pass
 
 
-class FileIgnoreParamsLoader:
-    def __init__(self, ignore_file: str) -> None:
+class FileIgnoreParamsLoader(IgnoreParamsLoader):
+    def __init__(self, ignore_file: Optional[str]) -> None:
         self.ignore_file = ignore_file
 
     def load_ignore_params(self) -> Set[str]:
