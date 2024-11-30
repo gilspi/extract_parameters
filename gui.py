@@ -3,8 +3,9 @@ import tkinter as tk
 from tkinter import messagebox, filedialog, ttk
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from simulation_runner import SimulationRunner
-from parameter_parser import ParameterParser, FileIgnoreParamsLoader
+from core.simulation_runner import SimulationRunner
+from core.parameter_parser import ParameterParser, FileIgnoreParamsLoader
+from core.file_manager import FileManager
 from config import IGNORE_PARAMS_FILE
 
 
@@ -18,6 +19,7 @@ class NGSPICESimulatorApp:
         # Переменные для отображения файлов и работы с параметрами
         self.parsing_file = tk.StringVar(value="Не выбран")
         self.simulation_runner = None
+        self.file_manager = FileManager()
         self.parameter_entries = []
 
         # Создание интерфейса
@@ -129,10 +131,7 @@ class NGSPICESimulatorApp:
                 # Сохраняем ссылку на имя и поле ввода
                 self.parameter_entries.append({"name": param["name"], "entry": entry})
 
-            # Устанавливаем SimulationRunner
-            model_path = os.path.dirname(parsing_file)
-            vamodel_name = os.path.basename(parsing_file)
-            self.simulation_runner = SimulationRunner(model_path, vamodel_name)
+            self.simulation_runner = SimulationRunner(parsing_file)
 
         except Exception as e:
             raise RuntimeError(f"Ошибка парсинга параметров: {e}")
@@ -154,8 +153,7 @@ class NGSPICESimulatorApp:
         target_file = self.parsing_file.get()
 
         try:
-            # Передаём изменения в SimulationRunner
-            self.simulation_runner.apply_changes_to_file(current_parameters, target_file)
+            self.file_manager.apply_changes_to_file(current_parameters, target_file)
             messagebox.showinfo("Успех", f"Изменения успешно применены в {target_file}.")
         except Exception as e:
             messagebox.showerror("Ошибка", f"Не удалось применить изменения: {e}")
@@ -167,7 +165,7 @@ class NGSPICESimulatorApp:
             return
 
         model_file = filedialog.askopenfilename(
-            initialdir=self.simulation_runner.model_path,
+            initialdir=self.simulation_runner.model_path,  # TODO сделать улучшения по поиску файлов в папке
             title="Выберите модель (.va)",
             filetypes=(("VA Model files", "*.va"), ("All files", "*.*"))
         )
