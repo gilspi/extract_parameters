@@ -59,12 +59,13 @@ rp5 21 22 560
 .control
 *pre_osdi ../../../osdilibs/bjt504.osdi
 *pre_osdi ../../../osdilibs/bjt504t.osdi
-pre_osdi bjt505.osdi
+pre_osdi ../../../osdilibs/bjt505.osdi
 *pre_osdi ../../../osdilibs/bjt505t.osdi
 *op
 *dc vin -2.0 0 0.02
 tran 0.2ns 200ns
 plot v(12) v(21)
+print v(12) v(21) > simulation_data.txt
 .endc
 
 .end
