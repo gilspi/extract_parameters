@@ -20,7 +20,7 @@ class SimulationRunner:
         """
         self.model_path = model_path
         self.vamodel_name = None
-        self.parameters_file = os.path.join(model_path, "parameters.inc") if model_path else None  # FIXME некорректная строка для поиска параметров ибо это не всегда будет parameters.inc
+        # self.parameters_file = os.path.join(model_path, "parameters.inc") if model_path else None  # FIXME некорректная строка для поиска параметров ибо это не всегда будет parameters.inc
         self.manager = SimulationManager()
         self.osdi_manager = None
         # self.file_manager = FileManager()
@@ -29,7 +29,7 @@ class SimulationRunner:
         """Установка текущей модели."""
         self.vamodel_name = os.path.basename(va_model_path)
         self.model_path = os.path.dirname(va_model_path)
-        self.parameters_file = os.path.join(self.model_path, "parameters.inc")  # FIXME убрать в дальнейшем
+        # self.parameters_file = os.path.join(self.model_path, "parameters.inc")  # FIXME убрать в дальнейшем
 
     def parse_parameters(self):
         """Парсинг параметров модели."""
