@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import messagebox, filedialog, ttk
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.widgets import Cursor
 from core.simulation_runner import SimulationRunner
 from core.parameter_parser import ParameterParser, FileIgnoreParamsLoader
 from core.file_manager import FileManager
@@ -51,6 +52,21 @@ class NGSPICESimulatorApp:
         tk.Button(self.root, text="Запустить симуляцию", command=self.start_simulation).grid(
             row=5, column=0, columnspan=2, pady=5, sticky="ew"
         )
+        # Добавление чекбокса для логарифмического масштаба
+        self.log_scale = tk.BooleanVar()
+        tk.Checkbutton(self.root, text="Log Scale", variable=self.log_scale, command=self.update_plot_scale).grid(
+            row=6, column=0, columnspan=2, sticky="w", padx=10, pady=5
+        )
+
+        # Слайдеры для управления пределами осей
+        tk.Label(self.root, text="X-max:").grid(row=7, column=0, sticky="e")
+        self.x_max_slider = tk.Scale(self.root, from_=1, to=100, orient="horizontal", command=self.update_plot_limits)
+        self.x_max_slider.grid(row=7, column=1, sticky="w")
+
+        tk.Label(self.root, text="Y-max:").grid(row=8, column=0, sticky="e")
+        self.y_max_slider = tk.Scale(self.root, from_=1, to=100, orient="horizontal", command=self.update_plot_limits)
+        self.y_max_slider.grid(row=8, column=1, sticky="w")
+
         # Поле для графика
         self.fig, self.canvas_plot = self.create_plot_area()
 
@@ -83,9 +99,17 @@ class NGSPICESimulatorApp:
 
     def create_plot_area(self):
         """Создание области для отображения графика."""
-        fig = plt.Figure(figsize=(6, 4), dpi=100)  # TODO: изменить размер окна графика
+        fig = plt.Figure(figsize=(6, 4), dpi=100)
         canvas = FigureCanvasTkAgg(fig, master=self.root)
-        canvas.get_tk_widget().grid(row=1, column=3, rowspan=4, padx=10, pady=5)
+        canvas_widget = canvas.get_tk_widget()
+        canvas_widget.grid(row=1, column=3, rowspan=4, padx=10, pady=5)
+
+        ax = fig.add_subplot(111)
+        ax.grid(True, which="both", linestyle="--", linewidth=0.5)
+
+        # Добавляем курсор для приближения/отдаления
+        self.cursor = Cursor(ax, useblit=True, color='red', linewidth=1)
+
         return fig, canvas
 
     def choose_parsing_file(self):
@@ -223,6 +247,21 @@ class NGSPICESimulatorApp:
 
             # Сохраняем ссылки на имя и поле ввода
             self.parameter_entries.append({"name": param["name"], "entry": entry})
+
+    def update_plot_scale(self):
+        """Обновление масштаба графика."""
+        if self.fig:
+            ax = self.fig.axes[0]
+            ax.set_yscale("log" if self.log_scale.get() else "linear")
+            self.canvas_plot.draw()
+
+    def update_plot_limits(self, event=None):
+        """Обновление пределов графика."""
+        if self.fig:
+            ax = self.fig.axes[0]
+            ax.set_xlim(right=self.x_max_slider.get())
+            ax.set_ylim(top=self.y_max_slider.get())
+            self.canvas_plot.draw()
 
 
 
