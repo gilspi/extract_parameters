@@ -3,15 +3,13 @@ import subprocess
 
 from config import OSDILIBS_PATH
 
-# FIXME после нажатия на кнопку запустить симуляцию выполняется команда ./openvaf nfet.sp хотя модель я выбрал ранее
+
 class OSDIManager:
     def __init__(self, model_path: str, vamodel_name: str) -> None:
-        #FIXME переделать названия ибо они некорректные
-        self.model_path = model_path  # os.path.dirname(model_path)
-        self.vamodel_name = vamodel_name  # os.path.basename(model_path)
-        self.parameters_file = os.path.join(model_path, "parameters.inc") if model_path else None  # FIXME некорректная строка для поиска параметров ибо это не всегда будет parameters.inc
-        # FIXME скорее всего parameters_file можно убрать
-        
+        self.model_path = model_path
+        self.vamodel_name = vamodel_name
+        # self.parameters_file = os.path.join(model_path, "parameters.inc") if model_path else None  
+# TODO оставновился на файле parameters_file ибо он еще и в SIMULATION RUNNER
     def rebuild_osdi(self):
         """Пересборка osdi-модели."""
 
