@@ -53,13 +53,14 @@ class Plotter(DataPlotter):
         for column in column_names[2:]:
             ax.plot(data[column_names[1]], data[column], label=column)
 
-        # Настройки графика
-        ax.set_yscale("log")
         ax.set_xlabel(column_names[1])
-        ax.set_ylabel("Current (A)")  # TODO менять в зависимости от того, какой анализ
-        ax.set_title("Current vs. Voltage Sweep")  # TODO как и в предыдущей строке
+        ax.set_ylabel("Current (A)")
+        ax.set_title("Current vs. Voltage Sweep")
         ax.legend()
         ax.grid(True, which="both", linestyle="--", linewidth=0.5)
+
+        # Поддержка логарифмического масштаба
+        ax.set_yscale("log")
 
         if canvas:
             canvas.draw()
