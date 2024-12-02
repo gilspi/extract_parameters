@@ -29,9 +29,9 @@ class NGSPICESimulatorApp:
     def create_interface(self):
         """Создание интерфейса пользователя."""
         # Выбор файла для парсинга параметров
-        tk.Label(self.root, text=f"Файл:").grid(row=0, column=0, sticky="w")
+        tk.Label(self.root, text=f"Файл:").grid(row=0, column=0, sticky="ew")
         tk.Label(self.root, textvariable=self.parsing_file).grid(row=0, column=1, sticky="w")
-        tk.Button(self.root, text="Выбрать файл", command=self.choose_parsing_file).grid(row=0, column=2, sticky="w")        
+        tk.Button(self.root, text="Выбрать файл", command=self.choose_parsing_file).grid(row=0, column=2, sticky="s")        
 
         # Создаем область параметров
         self.scrollable_frame = None
@@ -55,20 +55,12 @@ class NGSPICESimulatorApp:
         # Добавление чекбокса для логарифмического масштаба
         self.log_scale = tk.BooleanVar()
         tk.Checkbutton(self.root, text="Log Scale", variable=self.log_scale, command=self.update_plot_scale).grid(
-            row=6, column=0, columnspan=2, sticky="w", padx=10, pady=5
+            row=0, column=3, columnspan=2, sticky="w", padx=10, pady=5
         )
 
-        # Слайдеры для управления пределами осей
-        tk.Label(self.root, text="X-max:").grid(row=7, column=0, sticky="e")
-        self.x_max_slider = tk.Scale(self.root, from_=1, to=100, orient="horizontal", command=self.update_plot_limits)
-        self.x_max_slider.grid(row=7, column=1, sticky="w")
+        self.create_sliders()  # Слайдеры для управления пределами осей
 
-        tk.Label(self.root, text="Y-max:").grid(row=8, column=0, sticky="e")
-        self.y_max_slider = tk.Scale(self.root, from_=1, to=100, orient="horizontal", command=self.update_plot_limits)
-        self.y_max_slider.grid(row=8, column=1, sticky="w")
-
-        # Поле для графика
-        self.fig, self.canvas_plot = self.create_plot_area()
+        self.fig, self.canvas_plot = self.create_plot_area()  # Поле для графика
 
     def create_scrollable_frame(self):
         """Создание области с прокруткой для параметров."""
@@ -84,8 +76,8 @@ class NGSPICESimulatorApp:
         self.canvas_frame.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
         
         # Размещение: Canvas и Scrollbar вплотную
-        self.canvas_frame.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=(5, 0), pady=5)
-        self.canvas_scrollbar.grid(row=1, column=1, sticky="ns", padx=(0, 0))
+        self.canvas_frame.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=(5, 0), pady=5)  # TODO понять что за падинги
+        self.canvas_scrollbar.grid(row=1, column=1, sticky="ns", padx=(0, 0))  # TODO понять что за падинги
 
         # Привязка событий прокрутки
         self.scrollable_frame.bind(
@@ -111,6 +103,15 @@ class NGSPICESimulatorApp:
         self.cursor = Cursor(ax, useblit=True, color='red', linewidth=1)
 
         return fig, canvas
+
+    def create_sliders(self):
+        # tk.Label(self.root, text="X-max:").grid(row=5, column=3, sticky="e")
+        self.x_max_slider = tk.Scale(self.root, from_=0, to=100, orient="horizontal", command=self.update_plot_limits)
+        self.x_max_slider.grid(row=5, column=3, sticky="ew")
+
+        # tk.Label(self.root, text="Y-max:").grid(row=1, column=2, sticky="e")
+        self.y_max_slider = tk.Scale(self.root, from_=100, to=0, orient="vertical", command=self.update_plot_limits)
+        self.y_max_slider.grid(row=1, column=2, rowspan=4, sticky="ns")
 
     def choose_parsing_file(self):
         """Выбор файла параметров."""
@@ -259,10 +260,23 @@ class NGSPICESimulatorApp:
         """Обновление пределов графика."""
         if self.fig:
             ax = self.fig.axes[0]
-            ax.set_xlim(right=self.x_max_slider.get())
-            ax.set_ylim(top=self.y_max_slider.get())
+            
+            x_max = self.x_max_slider.get()
+            y_max = self.y_max_slider.get()
+
+            if x_max == 0:
+                x_max = 0.1
+
+            if y_max == 0:
+                y_max = 0.1
+
+            ax.set_xlim(right=x_max)
+            ax.set_ylim(top=y_max)
+
             self.canvas_plot.draw()
 
+        else:
+            print("Параметр 'fig' не должен быть None")
 
 
 if __name__ == "__main__":
