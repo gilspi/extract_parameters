@@ -7,6 +7,7 @@ from matplotlib.widgets import Cursor
 from core.simulation_runner import SimulationRunner
 from core.parameter_parser import ParameterParser, FileIgnoreParamsLoader
 from core.file_manager import FileManager
+from matplotlib.backend_bases import MouseEvent
 from config import IGNORE_PARAMS_FILE
 
 
@@ -23,15 +24,155 @@ class NGSPICESimulatorApp:
         self.file_manager = FileManager()
         self.parameter_entries = []
 
+        # Переменные для сброса масштаба
+        self.original_xlim = None
+        self.original_ylim = None
+
+        # Переменные для перемещения графика
+        self.pan_start = None  # Начальная позиция для панорамирования
+        self.pan_dx = 0
+        self.pan_dy = 0
+
         # Создание интерфейса
         self.create_interface()
+
+        # Слушаем события мыши на графике
+        self.canvas_plot.mpl_connect('button_press_event', self.on_press)
+        self.canvas_plot.mpl_connect('motion_notify_event', self.on_motion)
+        self.canvas_plot.mpl_connect('button_release_event', self.on_release)
+        self.canvas_plot.mpl_connect('scroll_event', self.on_scroll)
+
+    def create_sliders(self):
+        """Создание слайдеров для управления пределами осей."""
+        # Слайдер для X-оси
+        self.x_max_slider = tk.Scale(
+            self.root, from_=0, to=100, orient="horizontal", command=self.update_plot_from_sliders
+        )
+        self.x_max_slider.grid(row=5, column=3, sticky="ew")
+
+        # Слайдер для Y-оси
+        self.y_max_slider = tk.Scale(
+            self.root, from_=100, to=0, orient="vertical", command=self.update_plot_from_sliders
+        )
+        self.y_max_slider.grid(row=1, column=2, rowspan=4, sticky="ns")
+
+        # Установка начальных значений
+        self.update_sliders_from_plot()
+
+    def update_sliders_from_plot(self):
+        """Обновление слайдеров на основе текущих значений пределов графика."""
+        if self.fig:
+            ax = self.fig.axes[0]
+            xlim = ax.get_xlim()
+            ylim = ax.get_ylim()
+
+            # Обновляем значения слайдеров
+            self.x_max_slider.config(from_=xlim[0], to=xlim[1])
+            self.y_max_slider.config(from_=ylim[1], to=ylim[0])
+
+            self.x_max_slider.set(xlim[1])
+            self.y_max_slider.set(ylim[0])
+
+    def update_plot_from_sliders(self, event=None):
+        """Обновление графика на основе значений слайдеров."""
+        if self.fig:
+            ax = self.fig.axes[0]
+
+            # Получаем значения слайдеров
+            x_max = self.x_max_slider.get()
+            y_max = self.y_max_slider.get()
+
+            # Обновляем пределы графика
+            ax.set_xlim(right=x_max)
+            ax.set_ylim(top=y_max)
+
+            self.canvas_plot.draw()
+
+    def on_scroll(self, event):
+        """Обработка прокрутки мыши для зума."""
+        ax = self.fig.axes[0]
+        x_lim = ax.get_xlim()
+        y_lim = ax.get_ylim()
+
+        # Определяем направление прокрутки
+        if event.button == 'up':  # Вверх - приближаем
+            zoom_factor = 0.8
+        elif event.button == 'down':  # Вниз - отдаляем
+            zoom_factor = 1.2
+        else:
+            zoom_factor = 1
+
+        # Уменьшаем или увеличиваем диапазон осей
+        ax.set_xlim([x_lim[0] * zoom_factor, x_lim[1] * zoom_factor])
+        ax.set_ylim([y_lim[0] * zoom_factor, y_lim[1] * zoom_factor])
+
+        # Обновляем слайдеры
+        self.update_sliders_from_plot()
+        self.canvas_plot.draw()
+
+    def on_motion(self, event: MouseEvent):
+        """Обработка перемещения мыши для перемещения графика."""
+        if self.pan_start is not None and event.inaxes:
+            dx = event.xdata - self.pan_start[0]
+            dy = event.ydata - self.pan_start[1]
+
+            if (dx != self.pan_dx) or (dy != self.pan_dy):
+                ax = event.inaxes
+                xlim = ax.get_xlim()
+                ylim = ax.get_ylim()
+
+                ax.set_xlim([xlim[0] - dx, xlim[1] - dx])
+                ax.set_ylim([ylim[0] - dy, ylim[1] - dy])
+
+                # Обновляем слайдеры
+                self.update_sliders_from_plot()
+                self.canvas_plot.draw()
+
+                self.pan_dx = dx
+                self.pan_dy = dy
+
+    def reset_plot_scale(self):
+        """Сброс масштаба графика на исходное значение."""
+        if self.original_xlim is None or self.original_ylim is None:
+            ax = self.fig.axes[0]
+            self.original_xlim = ax.get_xlim()
+            self.original_ylim = ax.get_ylim()
+
+        ax = self.fig.axes[0]
+        ax.set_xlim(self.original_xlim)
+        ax.set_ylim(self.original_ylim)
+
+        # Обновляем слайдеры
+        self.update_sliders_from_plot()
+        self.canvas_plot.draw()
+
+    def on_press(self, event: MouseEvent):
+        """Обработка нажатия мыши для начала перемещения графика."""
+        if event.inaxes:
+            self.pan_start = (event.xdata, event.ydata)  # Сохраняем начальную точку для панорамирования
+
+    def on_click(self, event: MouseEvent):
+        """Обработка нажатия на график для активации зума."""
+        if event.inaxes:
+            ax = event.inaxes
+            # Фокусируемся на точке клика, например, приближаем на 20% в том месте
+            x_center = event.xdata
+            y_center = event.ydata
+
+            if x_center is not None and y_center is not None:
+                ax.set_xlim([x_center - (ax.get_xlim()[1] - ax.get_xlim()[0]) * 0.2, 
+                             x_center + (ax.get_xlim()[1] - ax.get_xlim()[0]) * 0.2])
+                ax.set_ylim([y_center - (ax.get_ylim()[1] - ax.get_ylim()[0]) * 0.2, 
+                             y_center + (ax.get_ylim()[1] - ax.get_ylim()[0]) * 0.2])
+
+                self.canvas_plot.draw()
 
     def create_interface(self):
         """Создание интерфейса пользователя."""
         # Выбор файла для парсинга параметров
         tk.Label(self.root, text=f"Файл:").grid(row=0, column=0, sticky="ew")
         tk.Label(self.root, textvariable=self.parsing_file).grid(row=0, column=1, sticky="w")
-        tk.Button(self.root, text="Выбрать файл", command=self.choose_parsing_file).grid(row=0, column=2, sticky="s")        
+        tk.Button(self.root, text="Выбрать файл", command=self.choose_parsing_file).grid(row=0, column=2, sticky="s")
 
         # Создаем область параметров
         self.scrollable_frame = None
@@ -52,15 +193,27 @@ class NGSPICESimulatorApp:
         tk.Button(self.root, text="Запустить симуляцию", command=self.start_simulation).grid(
             row=5, column=0, columnspan=2, pady=5, sticky="ew"
         )
+
         # Добавление чекбокса для логарифмического масштаба
         self.log_scale = tk.BooleanVar()
         tk.Checkbutton(self.root, text="Log Scale", variable=self.log_scale, command=self.update_plot_scale).grid(
-            row=0, column=3, columnspan=2, sticky="w", padx=10, pady=5
+            row=0, column=3, sticky="w"
         )
 
-        self.create_sliders()  # Слайдеры для управления пределами осей
+        # Создание области для графика (должно быть вызвано перед слайдерами)
+        self.fig, self.canvas_plot = self.create_plot_area()
 
-        self.fig, self.canvas_plot = self.create_plot_area()  # Поле для графика
+        # Кнопка для сброса масштаба
+        tk.Button(self.root, text="Сбросить масштаб", command=self.reset_plot_scale).grid(
+            row=6, column=3, sticky="ew"
+        )
+
+        # Создание слайдеров после инициализации графика
+        self.create_sliders()
+
+    def on_release(self, event: MouseEvent):
+        """Обработка отпускания кнопки мыши для завершения перемещения."""
+        self.pan_start = None  # Завершаем процесс панорамирования
 
     def create_scrollable_frame(self):
         """Создание области с прокруткой для параметров."""
@@ -103,15 +256,6 @@ class NGSPICESimulatorApp:
         self.cursor = Cursor(ax, useblit=True, color='red', linewidth=1)
 
         return fig, canvas
-
-    def create_sliders(self):
-        # tk.Label(self.root, text="X-max:").grid(row=5, column=3, sticky="e")
-        self.x_max_slider = tk.Scale(self.root, from_=0, to=100, orient="horizontal", command=self.update_plot_limits)
-        self.x_max_slider.grid(row=5, column=3, sticky="ew")
-
-        # tk.Label(self.root, text="Y-max:").grid(row=1, column=2, sticky="e")
-        self.y_max_slider = tk.Scale(self.root, from_=100, to=0, orient="vertical", command=self.update_plot_limits)
-        self.y_max_slider.grid(row=1, column=2, rowspan=4, sticky="ns")
 
     def choose_parsing_file(self):
         """Выбор файла параметров."""
@@ -274,7 +418,6 @@ class NGSPICESimulatorApp:
             ax.set_ylim(top=y_max)
 
             self.canvas_plot.draw()
-
         else:
             print("Параметр 'fig' не должен быть None")
 
