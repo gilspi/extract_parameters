@@ -14,13 +14,13 @@ NQ1 C B 0 S dt BJTRF1
 .control
 *pre_osdi ../../../osdilibs/bjt504.osdi
 *pre_osdi ../../../osdilibs/bjt504t.osdi
-*pre_osdi bjt505.osdi
-pre_osdi bjt505t.osdi
+*pre_osdi ../../../osdilibs/bjt505.osdi
+pre_osdi ../../../osdilibs/bjt505t.osdi
 dc vc 0 5.0 0.05 ib 2u 10u 2u
 plot abs(i(vc)) xlabel Vce title Output-Characteristic
 settype temperature v(dt)
 plot v(dt)
-print v(dt) abs(i(vc)) > simulation_data.txt
+print v(dt) abs(i(vc)) > data/raw/simulation_data.txt
 .endc
 
 .end

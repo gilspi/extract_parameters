@@ -33,7 +33,7 @@ class OSDIManager:
             raise FileNotFoundError(f"Файл {osdi_name} не найден в {self.model_path} после пересборки.")
 
         os.makedirs(OSDILIBS_PATH, exist_ok=True)
-        print(OSDILIBS_PATH, osdi_name)
+        # print(OSDILIBS_PATH, osdi_name)
         dst = os.path.join(OSDILIBS_PATH, osdi_name)
 
         print(f"Перемещаем файл OSDI в: {dst}")

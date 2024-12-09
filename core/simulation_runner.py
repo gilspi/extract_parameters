@@ -4,9 +4,10 @@ import subprocess
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
-from core.parameter_parser import ParameterParser
+from utils.parameter_parser import ParameterParser
 from core.osdi_manager import OSDIManager
 from plotting.plot_simulation import SimulationManager
+from utils.parameter_parser import ParameterParser
 
 
 class SimulationRunner:

@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from typing import List, Optional, Protocol
 import re
+from config import SIMULATION_RAW_DATA_PATH
 
 
 class DataLoader(Protocol):
@@ -55,11 +56,10 @@ class Plotter(DataPlotter):
 
         ax.set_xlabel(column_names[1])
         ax.set_ylabel("Current (A)")
-        ax.set_title("Current vs. Voltage Sweep")
+        ax.set_title("Current vs. Voltage Sweep")  # TODO сделать динамическое изменение название
         ax.legend()
-        ax.grid(True, which="both", linestyle="--", linewidth=0.5)
+        ax.grid(True, which="both", linestyle="--", linewidth=0.5)  # TODO сделать выбор цвета динамически
 
-        # Поддержка логарифмического масштаба
         ax.set_yscale("log")
 
         if canvas:
@@ -74,9 +74,12 @@ class SimulationManager:
         self.data_plotter = Plotter()
 
     def run(self, fig, canvas=None, filename="simulation_data.txt"):
+        """
+        TODO: добавить динамическое название для файла из GUI
+        """
         try:
             print(f"Чтение файла: {filename}")
-            data = self.data_loader.load_data(filename)
+            data = self.data_loader.load_data(f"{SIMULATION_RAW_DATA_PATH}{filename}")
             print(f"Данные загружены: {data.head()}")
 
             print("Построение графика")
