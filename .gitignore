@@ -2,35 +2,31 @@
 __pycache__/
 
 # Ignore shell and batch scripts
-code/*.sh
-code/*.bat
+data/code/*.sh
+data/code/*.bat
 
 ###########################
-code/**/**/Changelog
-code/**/**/NOTICE
-code/**/**/VERSION
-code/**/**/discipline.h
-code/**/**/IP_NOTICE_DISCLAIMER_LICENSE
-code/**/**/*.txt
+data/code/**/**/Changelog
+data/code/**/**/NOTICE
+data/code/**/**/VERSION
+data/code/**/**/discipline.h
+data/code/**/**/IP_NOTICE_DISCLAIMER_LICENSE
+data/code/**/**/*.txt
 ##########################
 
 # Verilog-A
-code/**/vacode/openvaf
+data/code/**/vacode/openvaf
 
 # osdilibs
-osdilibs/**/
+data/osdilibs/**
 
 # Ignore virtual environments
 venv/
 
 # Temporarily unavailable examples
-examples/**/Xyce
+data/examples/**/Xyce
 
 # Ignore specific modified files
-code/ASMHEMT/vacode/asmhemt.va
-code/mextram/vacode/parameters.inc
-osdilibs/bjt505.osdi
-simulation_data.txt
-
-# Ignore untracked file
-osdilibs/asmhemt.osdi
+data/code/ASMHEMT/vacode/**
+data/code/mextram/vacode/**
+data/raw/**

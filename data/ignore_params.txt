@@ -1,5 +1,4 @@
 version
-tref
 // resistance parameters
 re       
 rbv

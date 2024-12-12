@@ -29,6 +29,7 @@ setplot
 setplot noise1
 plot ally
 plot inoise_spectrum onoise_spectrum loglog
+print inoise_spectrum onoise_spectrum loglog > data/raw/simulation_data.txt
 setplot noise2
 print all
 .endc

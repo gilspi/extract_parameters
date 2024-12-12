@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.widgets import Cursor
 from core.simulation_runner import SimulationRunner
-from core.parameter_parser import ParameterParser, FileIgnoreParamsLoader
+from utils.parameter_parser import ParameterParser, FileIgnoreParamsLoader
 from core.file_manager import FileManager
 from matplotlib.backend_bases import MouseEvent
 from config import IGNORE_PARAMS_FILE
