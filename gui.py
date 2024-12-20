@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 import tkinter as tk
 from tkinter import messagebox, filedialog, ttk
 import matplotlib.pyplot as plt
@@ -206,6 +207,11 @@ class NGSPICESimulatorApp:
         # Кнопка для сброса масштаба
         tk.Button(self.root, text="Сбросить масштаб", command=self.reset_plot_scale).grid(
             row=6, column=3, sticky="ew"
+        )
+
+        # Кнопка для сохранения графика
+        tk.Button(self.root, text="Сохранить график", command=self.save_plot).grid(
+            row=7, column=3, sticky="ew"
         )
 
         # Создание слайдеров после инициализации графика
@@ -420,6 +426,21 @@ class NGSPICESimulatorApp:
             self.canvas_plot.draw()
         else:
             print("Параметр 'fig' не должен быть None")
+    
+    def save_plot(self):
+        """Сохранение графика в папку pics/ с названием, содержащим дату и время."""
+        # Ensure the directory exists
+        os.makedirs('pics', exist_ok=True)
+
+        # Get the current date and time
+        current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+        # Define the file path with the timestamp
+        file_path = os.path.join('pics', f'plot_{current_time}.png')
+
+        # Save the figure
+        self.fig.savefig(file_path)
+        messagebox.showinfo("Сохранение графика", f"График сохранён в {file_path}")
 
 
 if __name__ == "__main__":

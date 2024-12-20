@@ -23,7 +23,7 @@ examples/mextram/*
 !code/mextram/vacode505p2p0/**/*.va
 !code/mextram/vacode505p2p0/**/*.h
 !code/mextram/vacode505p2p0/**/*.inc
-!
+
 # Ignore Python virtual environments
 .venv/
 venv/
@@ -54,3 +54,9 @@ data/code/**/vacode505p2p0/openvaf
 
 # Ignore examples temporarily unavailable
 data/examples/**/Xyce
+
+# Ignore saved plots
+pics/
+
+# Ignore other specific files
+*.log
