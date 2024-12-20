@@ -20,7 +20,8 @@ dc vd 0.0 40 0.1 vg -1 3 0.5
 plot -i(vd)
 settype temperature v(dt)
 plot v(dt)
-print v(dt) abs(i(vd)) > data/raw/simulation_data.txt
+print v(dt) > /home/gilspi/Desktop/progs/extract_parameters/data/raw/simulation_data.txt
+*print [add-pointers from plot and do other print like that] > /home/gilspi/Desktop/progs/extract_parameters/data/raw/simulation_data.txt
 .endc
 
 .end

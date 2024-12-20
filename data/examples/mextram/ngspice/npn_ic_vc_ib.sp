@@ -20,7 +20,8 @@ dc vc 0 5.0 0.05 ib 2u 10u 2u
 plot abs(i(vc)) xlabel Vce title Output-Characteristic
 settype temperature v(dt)
 plot v(dt)
-print v(dt) abs(i(vc)) > data/raw/simulation_data.txt
+print v(dt) > /home/gilspi/Desktop/progs/extract_parameters/data/raw/simulation_data.txt
+*print [add-pointers from plot and do other print like that] > /home/gilspi/Desktop/progs/extract_parameters/data/raw/simulation_data.txt
 .endc
 
 .end

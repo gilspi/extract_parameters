@@ -31,7 +31,7 @@ class FileManager:
                 if match:
                     prefix = match.group(1)  # часть строки до значения
                     updated_line = f"{prefix}{current_parameters[param_name]}" + line[match.end():]
-                    print(f"Обновлённая строка: {updated_line.strip()}")
+                    # print(f"Обновлённая строка: {updated_line.strip()}")
                     lines[line_index] = updated_line
 
         with open(target_file, 'w') as file:

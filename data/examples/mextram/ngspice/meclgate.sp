@@ -1,13 +1,5 @@
 Motorola MECL III ECL gate
 
-
-.model dmod d rs=40 tt=0.1ns cjo=0.9pf n=1 is=1e-14 eg=1.11 vj=0.8 m=0.5
-
-*.model BJTRF1 bjt504_va
-*.model BJTRF1 bjt504t_va
-.model BJTRF1 bjt505_va
-*.model BJTRF1 bjt505t_va
-
 vee 22 0 -6.0
 vin 1 0 pulse -0.8 -1.8 0.2ns 0.2ns 0.2ns 10ns 20ns
 rs 1 2 50
@@ -54,6 +46,14 @@ nq11 0 13 21 22 BJTRF1
 rp4 20 22 560
 rp5 21 22 560
 
+.model dmod d rs=40 tt=0.1ns cjo=0.9pf n=1 is=1e-14 eg=1.11 vj=0.8 m=0.5
+
+*.model BJTRF1 bjt504_va
+*.model BJTRF1 bjt504t_va
+.model BJTRF1 bjt505_va
+*.model BJTRF1 bjt505t_va
+
+
 *.options acct bypass=1
 *.SAVE v(12) v(21)
 .control
@@ -65,7 +65,5 @@ pre_osdi ../../../osdilibs/bjt505.osdi
 *dc vin -2.0 0 0.02
 tran 0.2ns 200ns
 plot v(12) v(21)
-print v(12) v(21) > data/raw/simulation_data.txt
 .endc
-
 .end

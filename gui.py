@@ -1,236 +1,173 @@
 import os
+from datetime import datetime
+import time
 import tkinter as tk
 from tkinter import messagebox, filedialog, ttk
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.widgets import Cursor
+from matplotlib.patches import Rectangle
 from core.simulation_runner import SimulationRunner
 from utils.parameter_parser import ParameterParser, FileIgnoreParamsLoader
 from core.file_manager import FileManager
 from matplotlib.backend_bases import MouseEvent
-from config import IGNORE_PARAMS_FILE
+from config import IGNORE_PARAMS_FILE, PICS_PATH, MODEL_CODE_PATH, SPICE_EXAMPLES_PATH
 
 
 class NGSPICESimulatorApp:
     def __init__(self, root):
         self.root = root
         self.root.title("NGSPICE Симулятор")
-        self.root.geometry("1360x640")  # Размер окна
-        self.root.resizable(False, False)  # Отключение изменения размера окна
+        self.root.geometry("1360x640")
+        self.root.resizable(False, False)
 
-        # Переменные для отображения файлов и работы с параметрами
         self.parsing_file = tk.StringVar(value="Не выбран")
         self.simulation_runner = None
         self.file_manager = FileManager()
         self.parameter_entries = []
 
-        # Переменные для сброса масштаба
-        self.original_xlim = None
-        self.original_ylim = None
+        self.spice_file = None
 
-        # Переменные для перемещения графика
-        self.pan_start = None  # Начальная позиция для панорамирования
-        self.pan_dx = 0
-        self.pan_dy = 0
-
-        # Создание интерфейса
-        self.create_interface()
-
-        # Слушаем события мыши на графике
-        self.canvas_plot.mpl_connect('button_press_event', self.on_press)
-        self.canvas_plot.mpl_connect('motion_notify_event', self.on_motion)
-        self.canvas_plot.mpl_connect('button_release_event', self.on_release)
-        self.canvas_plot.mpl_connect('scroll_event', self.on_scroll)
-
-    def create_sliders(self):
-        """Создание слайдеров для управления пределами осей."""
-        # Слайдер для X-оси
-        self.x_max_slider = tk.Scale(
-            self.root, from_=0, to=100, orient="horizontal", command=self.update_plot_from_sliders
-        )
-        self.x_max_slider.grid(row=5, column=3, sticky="ew")
-
-        # Слайдер для Y-оси
-        self.y_max_slider = tk.Scale(
-            self.root, from_=100, to=0, orient="vertical", command=self.update_plot_from_sliders
-        )
-        self.y_max_slider.grid(row=1, column=2, rowspan=4, sticky="ns")
-
-        # Установка начальных значений
-        self.update_sliders_from_plot()
-
-    def update_sliders_from_plot(self):
-        """Обновление слайдеров на основе текущих значений пределов графика."""
-        if self.fig:
-            ax = self.fig.axes[0]
-            xlim = ax.get_xlim()
-            ylim = ax.get_ylim()
-
-            # Обновляем значения слайдеров
-            self.x_max_slider.config(from_=xlim[0], to=xlim[1])
-            self.y_max_slider.config(from_=ylim[1], to=ylim[0])
-
-            self.x_max_slider.set(xlim[1])
-            self.y_max_slider.set(ylim[0])
-
-    def update_plot_from_sliders(self, event=None):
-        """Обновление графика на основе значений слайдеров."""
-        if self.fig:
-            ax = self.fig.axes[0]
-
-            # Получаем значения слайдеров
-            x_max = self.x_max_slider.get()
-            y_max = self.y_max_slider.get()
-
-            # Обновляем пределы графика
-            ax.set_xlim(right=x_max)
-            ax.set_ylim(top=y_max)
-
-            self.canvas_plot.draw()
-
-    def on_scroll(self, event):
-        """Обработка прокрутки мыши для зума."""
-        ax = self.fig.axes[0]
-        x_lim = ax.get_xlim()
-        y_lim = ax.get_ylim()
-
-        # Определяем направление прокрутки
-        if event.button == 'up':  # Вверх - приближаем
-            zoom_factor = 0.8
-        elif event.button == 'down':  # Вниз - отдаляем
-            zoom_factor = 1.2
-        else:
-            zoom_factor = 1
-
-        # Уменьшаем или увеличиваем диапазон осей
-        ax.set_xlim([x_lim[0] * zoom_factor, x_lim[1] * zoom_factor])
-        ax.set_ylim([y_lim[0] * zoom_factor, y_lim[1] * zoom_factor])
-
-        # Обновляем слайдеры
-        self.update_sliders_from_plot()
-        self.canvas_plot.draw()
-
-    def on_motion(self, event: MouseEvent):
-        """Обработка перемещения мыши для перемещения графика."""
-        if self.pan_start is not None and event.inaxes:
-            dx = event.xdata - self.pan_start[0]
-            dy = event.ydata - self.pan_start[1]
-
-            if (dx != self.pan_dx) or (dy != self.pan_dy):
-                ax = event.inaxes
-                xlim = ax.get_xlim()
-                ylim = ax.get_ylim()
-
-                ax.set_xlim([xlim[0] - dx, xlim[1] - dx])
-                ax.set_ylim([ylim[0] - dy, ylim[1] - dy])
-
-                # Обновляем слайдеры
-                self.update_sliders_from_plot()
-                self.canvas_plot.draw()
-
-                self.pan_dx = dx
-                self.pan_dy = dy
-
-    def reset_plot_scale(self):
-        """Сброс масштаба графика на исходное значение."""
-        if self.original_xlim is None or self.original_ylim is None:
-            ax = self.fig.axes[0]
-            self.original_xlim = ax.get_xlim()
-            self.original_ylim = ax.get_ylim()
-
-        ax = self.fig.axes[0]
-        ax.set_xlim(self.original_xlim)
-        ax.set_ylim(self.original_ylim)
-
-        # Обновляем слайдеры
-        self.update_sliders_from_plot()
-        self.canvas_plot.draw()
-
-    def on_press(self, event: MouseEvent):
-        """Обработка нажатия мыши для начала перемещения графика."""
-        if event.inaxes:
-            self.pan_start = (event.xdata, event.ydata)  # Сохраняем начальную точку для панорамирования
-
-    def on_click(self, event: MouseEvent):
-        """Обработка нажатия на график для активации зума."""
-        if event.inaxes:
-            ax = event.inaxes
-            # Фокусируемся на точке клика, например, приближаем на 20% в том месте
-            x_center = event.xdata
-            y_center = event.ydata
-
-            if x_center is not None and y_center is not None:
-                ax.set_xlim([x_center - (ax.get_xlim()[1] - ax.get_xlim()[0]) * 0.2, 
-                             x_center + (ax.get_xlim()[1] - ax.get_xlim()[0]) * 0.2])
-                ax.set_ylim([y_center - (ax.get_ylim()[1] - ax.get_ylim()[0]) * 0.2, 
-                             y_center + (ax.get_ylim()[1] - ax.get_ylim()[0]) * 0.2])
-
-                self.canvas_plot.draw()
-
-    def create_interface(self):
-        """Создание интерфейса пользователя."""
-        # Выбор файла для парсинга параметров
-        tk.Label(self.root, text=f"Файл:").grid(row=0, column=0, sticky="ew")
-        tk.Label(self.root, textvariable=self.parsing_file).grid(row=0, column=1, sticky="w")
-        tk.Button(self.root, text="Выбрать файл", command=self.choose_parsing_file).grid(row=0, column=2, sticky="s")
-
-        # Создаем область параметров
         self.scrollable_frame = None
         self.canvas_frame = None
         self.canvas_scrollbar = None
+        self.create_interface()
+
+        """Область отвечающая за обработку zoom на графике"""
+        self.canvas_plot.mpl_connect('scroll_event', self.on_scroll)
+
+        """Область отвечающая за обработку действий на графике"""
+        self.start_point = None
+        self.selection_rect = None
+        self.canvas_plot.mpl_connect('button_press_event', self.on_press)
+        self.canvas_plot.mpl_connect('motion_notify_event', self.on_motion)
+        self.canvas_plot.mpl_connect('button_release_event', self.on_release)
+
+    # def reset_plot_scale(self):
+    #     """Сброс масштаба графика на исходное значение."""
+    #     if self.original_xlim is None or self.original_ylim is None:
+    #         ax = self.fig.axes[0]
+    #         self.original_xlim = ax.get_xlim()
+    #         self.original_ylim = ax.get_ylim()
+
+    #     ax = self.fig.axes[0]
+    #     ax.set_xlim(self.original_xlim)
+    #     ax.set_ylim(self.original_ylim)
+
+    #     # Обновляем слайдеры
+    #     self.update_sliders_from_plot()
+    #     self.canvas_plot.draw()
+
+    def on_scroll(self, event):
+        """Handle mouse scroll events to zoom in or out on the plot."""
+        if not self.fig or not self.fig.axes:
+            return
+
+        ax = self.fig.axes[0]
+        x_lim, y_lim = ax.get_xlim(), ax.get_ylim()
+
+        ZOOM_IN_FACTOR, ZOOM_OUT_FACTOR = 0.5, 2
+        zoom_factor = ZOOM_IN_FACTOR if event.button == 'up' else ZOOM_OUT_FACTOR
+
+        x_center = event.xdata if event.xdata is not None else (x_lim[0] + x_lim[1]) / 2
+        y_center = event.ydata if event.ydata is not None else (y_lim[0] + y_lim[1]) / 2
+
+        x_range = (x_lim[1] - x_lim[0]) * zoom_factor
+        y_range = (y_lim[1] - y_lim[0]) * zoom_factor
+
+        new_x_min, new_x_max = x_center - x_range / 2, x_center + x_range / 2
+        new_y_min, new_y_max = y_center - y_range / 2, y_center + y_range / 2
+
+        ax.set_xlim([new_x_min, new_x_max])
+        ax.set_ylim([new_y_min, new_y_max])
+
+        self.canvas_plot.draw()
+
+    def on_press(self, event: MouseEvent):
+        """Начало выделения области на графике."""
+        if event.inaxes:
+            self.start_point = (event.xdata, event.ydata)
+
+            if self.selection_rect is None:
+                self.selection_rect = Rectangle(
+                    (event.xdata, event.ydata), 0, 0,
+                    edgecolor="red", facecolor="none", linewidth=1.5
+                )
+                event.inaxes.add_patch(self.selection_rect)
+
+    def on_motion(self, event: MouseEvent):
+        """Обновление прямоугольника выделения."""
+        if not self.start_point or not event.inaxes:
+            return
+        
+        x0, y0 = self.start_point
+        x1, y1 = event.xdata, event.ydata
+
+        self.selection_rect.set_width(x1 - x0)
+        self.selection_rect.set_height(y1 - y0)
+        self.selection_rect.set_xy((x0, y0))
+        self.canvas_plot.draw()
+
+    def on_release(self, event: MouseEvent):
+        """При отпускании мыши область приближается."""
+        if not self.start_point or not event.inaxes:
+            return
+        
+        x0, y0 = self.start_point
+        x1, y1 = event.xdata, event.ydata
+
+        if x0 != x1 and y0 != y1:
+            ax = event.inaxes
+            ax.set_xlim(min(x0, x1), max(x0, x1))
+            ax.set_ylim(min(y0, y1), max(y0, y1))
+            self.canvas_plot.draw()
+        
+        self.start_point = None
+        if self.selection_rect:
+            self.selection_rect.remove()
+            self.selection_rect = None
+
+    def create_interface(self):
+        """Sets up the GUI interface for the NGSPICESimulatorApp."""
+        tk.Label(self.root, text="Файл:").grid(row=0, column=0, sticky="ew")
+        tk.Label(self.root, textvariable=self.parsing_file).grid(row=0, column=1, sticky="w")
+        tk.Button(self.root, text="Выбрать файл", command=self.choose_parsing_file).grid(row=0, column=2, sticky="s")
+
         self.create_scrollable_frame()
 
-        # Кнопки управления
-        tk.Button(self.root, text="Выбрать модель", command=self.choose_model).grid(
-            row=2, column=0, columnspan=2, pady=5, sticky="ew"
-        )
-        tk.Button(self.root, text="Применить изменения", command=self.apply_changes).grid(
-            row=3, column=0, columnspan=2, pady=5, sticky="ew"
-        )
-        tk.Button(self.root, text="Выбрать SPICE-файл", command=self.choose_spice_file).grid(
-            row=4, column=0, columnspan=2, pady=5, sticky="ew"
-        )
-        tk.Button(self.root, text="Запустить симуляцию", command=self.start_simulation).grid(
-            row=5, column=0, columnspan=2, pady=5, sticky="ew"
-        )
+        button_config = [
+            ("Выбрать модель", self.choose_model, 2),
+            ("Применить изменения", self.apply_changes, 3),
+            ("Выбрать SPICE-файл", self.choose_spice_file, 4),
+            ("Запустить симуляцию", self.start_simulation, 5)
+        ]
+        for text, command, row in button_config:
+            tk.Button(self.root, text=text, command=command).grid(row=row, column=0, columnspan=2, pady=5, sticky="ew")
 
-        # Добавление чекбокса для логарифмического масштаба
         self.log_scale = tk.BooleanVar()
         tk.Checkbutton(self.root, text="Log Scale", variable=self.log_scale, command=self.update_plot_scale).grid(
             row=0, column=3, sticky="w"
         )
 
-        # Создание области для графика (должно быть вызвано перед слайдерами)
         self.fig, self.canvas_plot = self.create_plot_area()
+        tk.Button(self.root, text="Сохранить график", command=self.save_plot).grid(row=7, column=3, sticky="ew")
 
-        # Кнопка для сброса масштаба
-        tk.Button(self.root, text="Сбросить масштаб", command=self.reset_plot_scale).grid(
-            row=6, column=3, sticky="ew"
-        )
-
-        # Создание слайдеров после инициализации графика
-        self.create_sliders()
-
-    def on_release(self, event: MouseEvent):
-        """Обработка отпускания кнопки мыши для завершения перемещения."""
-        self.pan_start = None  # Завершаем процесс панорамирования
+        # self.create_sliders()
 
     def create_scrollable_frame(self):
         """Создание области с прокруткой для параметров."""
         if self.scrollable_frame:
             self.scrollable_frame.destroy()
 
-        # Canvas для параметров и Scrollbar
         self.canvas_frame = tk.Canvas(self.root, borderwidth=0, highlightthickness=0)
         self.scrollable_frame = ttk.Frame(self.canvas_frame)
         self.canvas_scrollbar = ttk.Scrollbar(self.root, orient="vertical", command=self.canvas_frame.yview)
 
         self.canvas_frame.configure(yscrollcommand=self.canvas_scrollbar.set)
         self.canvas_frame.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
-        
-        # Размещение: Canvas и Scrollbar вплотную
-        self.canvas_frame.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=(5, 0), pady=5)  # TODO понять что за падинги
-        self.canvas_scrollbar.grid(row=1, column=1, sticky="ns", padx=(0, 0))  # TODO понять что за падинги
+
+        self.canvas_frame.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=(5, 0), pady=5)
+        self.canvas_scrollbar.grid(row=1, column=1, sticky="ns")
 
         # Привязка событий прокрутки
         self.scrollable_frame.bind(
@@ -243,32 +180,72 @@ class NGSPICESimulatorApp:
         self.canvas_frame.yview_scroll(-1 * (event.delta // 120), "units")
 
     def create_plot_area(self):
-        """Создание области для отображения графика."""
+        """Initialize a plotting area within the Tkinter application."""
         fig = plt.Figure(figsize=(6, 4), dpi=100)
         canvas = FigureCanvasTkAgg(fig, master=self.root)
-        canvas_widget = canvas.get_tk_widget()
-        canvas_widget.grid(row=1, column=3, rowspan=4, padx=10, pady=5)
+        canvas.get_tk_widget().grid(row=1, column=3, rowspan=4, padx=10, pady=5)
 
         ax = fig.add_subplot(111)
         ax.grid(True, which="both", linestyle="--", linewidth=0.5)
 
-        # Добавляем курсор для приближения/отдаления
+        self.original_xlim = ax.get_xlim()
+        self.original_ylim = ax.get_ylim()
+
         self.cursor = Cursor(ax, useblit=True, color='red', linewidth=1)
 
         return fig, canvas
 
     def choose_parsing_file(self):
         """Выбор файла параметров."""
-        parsing_file = filedialog.askopenfilename(
-            title="Выберите файл параметров",
-            filetypes=(("INC and VA files", "*.inc *.va"), ("All files", "*.*"))
-        )
-        if parsing_file:
-            self.parsing_file.set(parsing_file)  # Сохраняем полный путь
-            try:
+        try:
+            parsing_file = filedialog.askopenfilename(
+                title="Выберите файл параметров",
+                initialdir=MODEL_CODE_PATH,
+                filetypes=(("INC and VA files", "parameters.inc *.va"), ("All files", "*.*"))
+            )
+            if parsing_file:
+                self.parsing_file.set(parsing_file)  # Сохраняем полный путь
+                # print(f"parsing file path: {parsing_file}")
                 self.update_parameters(parsing_file)
-            except Exception as e:
-                messagebox.showerror("Ошибка", f"Ошибка при обработке файла параметров: {e}")
+        except Exception as e:
+            messagebox.showerror("Ошибка", f"Ошибка при обработке файла параметров: {e}")
+
+    def choose_model(self):
+        """Выбор конкретной .va модели для использования."""
+        if not self.simulation_runner:
+            messagebox.showerror("Ошибка", "Сначала выберите файл параметров.")
+            return
+
+        model_file = filedialog.askopenfilename(
+            initialfile=self.parsing_file,
+            title="Выберите модель (.va)",
+            filetypes=(("VA Model files", "*.va"), ("All files", "*.*"))
+        )
+
+        if model_file:
+            self.simulation_runner.set_model(model_file)
+            messagebox.showinfo("Модель выбрана", f"Модель: {os.path.basename(model_file)}")
+        else:
+            messagebox.showerror("Ошибка", "Выбор модели отменён.")
+
+    def choose_spice_file(self):
+        """Выбор SPICE-файла."""
+        try:
+            parsing_file_path = self.parsing_file.get()
+            parent_dir_name = os.path.basename(os.path.dirname(os.path.dirname(parsing_file_path)))
+            initial_dir = os.path.join(SPICE_EXAMPLES_PATH, parent_dir_name)
+        
+            spice_file = filedialog.askopenfilename(
+                title="Выберите SPICE-файл",
+                initialdir=initial_dir,
+                filetypes=(("SPICE files", "*.sp *.cir"), ("All files", "*.*"))
+            )
+        
+            if spice_file:
+                self.spice_file = spice_file
+                messagebox.showinfo("Файл выбран", f"Выбранный файл: {spice_file}")
+        except Exception as e:
+            messagebox.showerror("Ошибка", f"Ошибка при выборе SPICE-файла: {e}")
 
     def update_parameters(self, parsing_file):
         """Обновление параметров на основе выбранного файла."""
@@ -277,27 +254,23 @@ class NGSPICESimulatorApp:
             parser = ParameterParser(file_path=parsing_file, ignore_params_loader=ignore_params_loader)
             parameters = parser.parse()
 
-            # Если параметров > 15, создаем область прокрутки
             if len(parameters) > 15:
                 self.create_scrollable_frame()
                 parent_frame = self.scrollable_frame
             else:
                 parent_frame = self.root
 
-            # Очищаем текущие параметры
             for widget in parent_frame.winfo_children():
                 widget.destroy()
 
-            self.parameter_entries = []  # Очистка списка параметров
+            self.parameter_entries = []
 
-            # Добавляем новые параметры
             for i, param in enumerate(parameters):
                 tk.Label(parent_frame, text=param["name"]).grid(row=i, column=0, sticky="w", padx=5, pady=2)
                 entry = tk.Entry(parent_frame)
                 entry.insert(0, str(param["default_value"]))
                 entry.grid(row=i, column=1, padx=5, pady=2)
 
-                # Сохраняем ссылку на имя и поле ввода
                 self.parameter_entries.append({"name": param["name"], "entry": entry})
 
             self.simulation_runner = SimulationRunner(parsing_file)
@@ -311,14 +284,12 @@ class NGSPICESimulatorApp:
             messagebox.showerror("Ошибка", "Модель не выбрана.")
             return
 
-        # Сбор текущих параметров из GUI
         current_parameters = {}
         for param in self.parameter_entries:
             param_name = param["name"]
             param_value = param["entry"].get()
             current_parameters[param_name] = param_value
 
-        # Получаем полный путь к выбранному файлу
         target_file = self.parsing_file.get()
 
         try:
@@ -326,34 +297,6 @@ class NGSPICESimulatorApp:
             messagebox.showinfo("Успех", f"Изменения успешно применены в {target_file}.")
         except Exception as e:
             messagebox.showerror("Ошибка", f"Не удалось применить изменения: {e}")
-    
-    def choose_model(self):
-        """Выбор конкретной .va модели для использования."""
-        if not self.simulation_runner or not self.simulation_runner.model_path:
-            messagebox.showerror("Ошибка", "Сначала выберите файл параметров.")
-            return
-
-        model_file = filedialog.askopenfilename(
-            initialdir=self.simulation_runner.model_path,  # TODO сделать улучшения по поиску файлов в папке
-            title="Выберите модель (.va)",
-            filetypes=(("VA Model files", "*.va"), ("All files", "*.*"))
-        )
-
-        if model_file:
-            self.simulation_runner.set_model(model_file)
-            messagebox.showinfo("Модель выбрана", f"Модель: {os.path.basename(model_file)}")
-        else:
-            messagebox.showerror("Ошибка", "Выбор модели отменён.")
-
-    def choose_spice_file(self):
-        """Выбор SPICE-файла."""
-        spice_file = filedialog.askopenfilename(
-            title="Выберите SPICE-файл",
-            filetypes=(("SPICE files", "*.sp *.cir"), ("All files", "*.*"))
-        )
-        if spice_file:
-            self.spice_file = spice_file
-            messagebox.showinfo("Файл выбран", f"Выбранный файл: {spice_file}")
 
     def start_simulation(self):
         """Запуск симуляции."""
@@ -364,13 +307,19 @@ class NGSPICESimulatorApp:
             messagebox.showerror("Ошибка", "Сначала выберите SPICE-файл.")
             return
 
+        if self.fig:  # clean canvas/fig
+            self.fig.clear()
+            self.canvas_plot.draw()
+
         try:
             self.simulation_runner.run_simulation(
                 spice_file=self.spice_file,
                 canvas=self.canvas_plot,
-                fig=self.fig
+                fig=self.fig,
             )
             messagebox.showinfo("Успех", "Симуляция завершена успешно.")
+        except RuntimeError as warning:
+            messagebox.showwarning(f"Предупреждение", f"{warning}")
         except Exception as e:
             messagebox.showerror("Ошибка симуляции", f"Ошибка симуляции: {e}")
 
@@ -395,14 +344,17 @@ class NGSPICESimulatorApp:
 
     def update_plot_scale(self):
         """Обновление масштаба графика."""
-        if self.fig:
-            ax = self.fig.axes[0]
-            ax.set_yscale("log" if self.log_scale.get() else "linear")
-            self.canvas_plot.draw()
+        if not self.fig:
+            return
+        
+        ax = self.fig.axes[0]
+        y_scale = "log" if self.log_scale.get() else "linear"
+        ax.set_yscale(y_scale)
+        self.canvas_plot.draw()
 
     def update_plot_limits(self, event=None):
         """Обновление пределов графика."""
-        if self.fig:
+        if self.fig and self.fig.axes:
             ax = self.fig.axes[0]
             
             x_max = self.x_max_slider.get()
@@ -420,6 +372,14 @@ class NGSPICESimulatorApp:
             self.canvas_plot.draw()
         else:
             print("Параметр 'fig' не должен быть None")
+    
+    def save_plot(self):
+        """Сохранение графика в папку. Название, содержит дату и время."""
+        os.makedirs(PICS_PATH, exist_ok=True)
+        current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
+        file_path = os.path.join(PICS_PATH, f'plot_{current_time}.png')
+        self.fig.savefig(file_path)
+        messagebox.showinfo("Сохранение графика", f"График сохранён в {file_path}")
 
 
 if __name__ == "__main__":

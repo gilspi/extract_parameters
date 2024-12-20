@@ -1,8 +1,8 @@
 # Ignore all files by default
 code/asmhemt/vacode/*
 code/mextram/vacode/*
-code/mextram/vacode504p12p1/*
-code/mextram/vacode505p2p0/*
+code/mextram/**/*
+code/mextram/**/*
 examples/asmhemt/*
 examples/mextram/*
 
@@ -23,7 +23,8 @@ examples/mextram/*
 !code/mextram/vacode505p2p0/**/*.va
 !code/mextram/vacode505p2p0/**/*.h
 !code/mextram/vacode505p2p0/**/*.inc
-!
+
+
 # Ignore Python virtual environments
 .venv/
 venv/
@@ -39,18 +40,24 @@ data/code/*.sh
 data/code/*.bat
 
 # Ignore common documentation files
-data/code/**/**/Changelog
+data/code/**/**/**.txt
 data/code/**/**/NOTICE
 data/code/**/**/VERSION
-data/code/**/**/discipline.h
 data/code/**/**/IP_NOTICE_DISCLAIMER_LICENSE
-data/code/**/**/*.txt
+data/code/**/**/Changelog
 
 # Ignore Verilog-A files
-data/code/**/vacode/openvaf
-data/code/**/vacode504p12p1/openvaf
-data/code/**/vacode505p2p0/openvaf
+data/**/**/vacode/openvaf
+data/**/**/**/openvaf.exe
 
 
 # Ignore examples temporarily unavailable
 data/examples/**/Xyce
+
+# Ignore saved plots
+pics/
+
+# Ignore other specific files
+*.log
+
+data/reference/*
