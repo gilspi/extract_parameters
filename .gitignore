@@ -50,6 +50,9 @@ data/code/**/**/*.txt
 data/code/**/vacode/openvaf
 data/code/**/vacode504p12p1/openvaf
 data/code/**/vacode505p2p0/openvaf
+data/code/**/vacode/openvaf.exe
+data/code/**/vacode504p12p1/openvaf.exe
+data/code/**/vacode505p2p0/openvaf.exe
 
 
 # Ignore examples temporarily unavailable

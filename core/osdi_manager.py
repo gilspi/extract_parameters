@@ -1,4 +1,5 @@
 import os
+import platform
 import subprocess
 
 from config import OSDILIBS_PATH
@@ -16,10 +17,18 @@ class OSDIManager:
         if not self.vamodel_name:
             raise FileNotFoundError("Файл .va не выбран для модели.")
         
+        current_os = platform.system()
+        if current_os == "Windows":
+            command = "openvaf.exe"
+        elif current_os == "Linux":
+            command = "./openvaf"
+        else:
+            raise OSError("Unsupported operating system")
+        
         try:
             print(self.vamodel_name)
             print(self.model_path)
-            subprocess.run(["./openvaf", self.vamodel_name], cwd=self.model_path, check=True)
+            subprocess.run([command, self.vamodel_name], cwd=self.model_path, check=True)
         except subprocess.CalledProcessError as e:
             raise RuntimeError(f"Ошибка при пересборке osdi-модели: {e}")
 

@@ -1,5 +1,4 @@
 import os
-from datetime import datetime
 import tkinter as tk
 from tkinter import messagebox, filedialog, ttk
 import matplotlib.pyplot as plt
@@ -16,28 +15,21 @@ class NGSPICESimulatorApp:
     def __init__(self, root):
         self.root = root
         self.root.title("NGSPICE Симулятор")
-        self.root.geometry("1360x640")  # Размер окна
-        self.root.resizable(False, False)  # Отключение изменения размера окна
+        self.root.geometry("1360x640")
+        self.root.resizable(False, False)
 
-        # Переменные для отображения файлов и работы с параметрами
         self.parsing_file = tk.StringVar(value="Не выбран")
         self.simulation_runner = None
         self.file_manager = FileManager()
         self.parameter_entries = []
 
-        # Переменные для сброса масштаба
         self.original_xlim = None
         self.original_ylim = None
 
-        # Переменные для перемещения графика
-        self.pan_start = None  # Начальная позиция для панорамирования
-        self.pan_dx = 0
-        self.pan_dy = 0
+        self.pan_start = None
 
-        # Создание интерфейса
         self.create_interface()
 
-        # Слушаем события мыши на графике
         self.canvas_plot.mpl_connect('button_press_event', self.on_press)
         self.canvas_plot.mpl_connect('motion_notify_event', self.on_motion)
         self.canvas_plot.mpl_connect('button_release_event', self.on_release)
@@ -90,47 +82,39 @@ class NGSPICESimulatorApp:
             self.canvas_plot.draw()
 
     def on_scroll(self, event):
-        """Обработка прокрутки мыши для зума."""
         ax = self.fig.axes[0]
         x_lim = ax.get_xlim()
         y_lim = ax.get_ylim()
 
-        # Определяем направление прокрутки
-        if event.button == 'up':  # Вверх - приближаем
-            zoom_factor = 0.8
-        elif event.button == 'down':  # Вниз - отдаляем
-            zoom_factor = 1.2
-        else:
-            zoom_factor = 1
+        zoom_factor = 0.8 if event.button == 'up' else 1.2
 
-        # Уменьшаем или увеличиваем диапазон осей
-        ax.set_xlim([x_lim[0] * zoom_factor, x_lim[1] * zoom_factor])
-        ax.set_ylim([y_lim[0] * zoom_factor, y_lim[1] * zoom_factor])
+        x_center = (x_lim[0] + x_lim[1]) / 2
+        y_center = (y_lim[0] + y_lim[1]) / 2
 
-        # Обновляем слайдеры
+        x_range = (x_lim[1] - x_lim[0]) * zoom_factor
+        y_range = (y_lim[1] - y_lim[0]) * zoom_factor
+
+        ax.set_xlim([x_center - x_range / 2, x_center + x_range / 2])
+        ax.set_ylim([y_center - y_range / 2, y_center + y_range / 2])
+
         self.update_sliders_from_plot()
         self.canvas_plot.draw()
 
     def on_motion(self, event: MouseEvent):
         """Обработка перемещения мыши для перемещения графика."""
         if self.pan_start is not None and event.inaxes:
+            ax = event.inaxes
             dx = event.xdata - self.pan_start[0]
             dy = event.ydata - self.pan_start[1]
 
-            if (dx != self.pan_dx) or (dy != self.pan_dy):
-                ax = event.inaxes
-                xlim = ax.get_xlim()
-                ylim = ax.get_ylim()
+            xlim = ax.get_xlim()
+            ylim = ax.get_ylim()
 
-                ax.set_xlim([xlim[0] - dx, xlim[1] - dx])
-                ax.set_ylim([ylim[0] - dy, ylim[1] - dy])
+            ax.set_xlim(xlim[0] - dx, xlim[1] - dx)
+            ax.set_ylim(ylim[0] - dy, ylim[1] - dy)
 
-                # Обновляем слайдеры
-                self.update_sliders_from_plot()
-                self.canvas_plot.draw()
-
-                self.pan_dx = dx
-                self.pan_dy = dy
+            self.update_sliders_from_plot()
+            self.canvas_plot.draw()
 
     def reset_plot_scale(self):
         """Сброс масштаба графика на исходное значение."""
@@ -150,7 +134,7 @@ class NGSPICESimulatorApp:
     def on_press(self, event: MouseEvent):
         """Обработка нажатия мыши для начала перемещения графика."""
         if event.inaxes:
-            self.pan_start = (event.xdata, event.ydata)  # Сохраняем начальную точку для панорамирования
+            self.pan_start = (event.xdata, event.ydata)
 
     def on_click(self, event: MouseEvent):
         """Обработка нажатия на график для активации зума."""
@@ -169,19 +153,15 @@ class NGSPICESimulatorApp:
                 self.canvas_plot.draw()
 
     def create_interface(self):
-        """Создание интерфейса пользователя."""
-        # Выбор файла для парсинга параметров
         tk.Label(self.root, text=f"Файл:").grid(row=0, column=0, sticky="ew")
         tk.Label(self.root, textvariable=self.parsing_file).grid(row=0, column=1, sticky="w")
         tk.Button(self.root, text="Выбрать файл", command=self.choose_parsing_file).grid(row=0, column=2, sticky="s")
 
-        # Создаем область параметров
         self.scrollable_frame = None
         self.canvas_frame = None
         self.canvas_scrollbar = None
         self.create_scrollable_frame()
 
-        # Кнопки управления
         tk.Button(self.root, text="Выбрать модель", command=self.choose_model).grid(
             row=2, column=0, columnspan=2, pady=5, sticky="ew"
         )
@@ -195,31 +175,22 @@ class NGSPICESimulatorApp:
             row=5, column=0, columnspan=2, pady=5, sticky="ew"
         )
 
-        # Добавление чекбокса для логарифмического масштаба
         self.log_scale = tk.BooleanVar()
         tk.Checkbutton(self.root, text="Log Scale", variable=self.log_scale, command=self.update_plot_scale).grid(
             row=0, column=3, sticky="w"
         )
 
-        # Создание области для графика (должно быть вызвано перед слайдерами)
         self.fig, self.canvas_plot = self.create_plot_area()
 
-        # Кнопка для сброса масштаба
         tk.Button(self.root, text="Сбросить масштаб", command=self.reset_plot_scale).grid(
             row=6, column=3, sticky="ew"
         )
 
-        # Кнопка для сохранения графика
-        tk.Button(self.root, text="Сохранить график", command=self.save_plot).grid(
-            row=7, column=3, sticky="ew"
-        )
-
-        # Создание слайдеров после инициализации графика
         self.create_sliders()
 
     def on_release(self, event: MouseEvent):
         """Обработка отпускания кнопки мыши для завершения перемещения."""
-        self.pan_start = None  # Завершаем процесс панорамирования
+        self.pan_start = None
 
     def create_scrollable_frame(self):
         """Создание области с прокруткой для параметров."""
@@ -249,7 +220,6 @@ class NGSPICESimulatorApp:
         self.canvas_frame.yview_scroll(-1 * (event.delta // 120), "units")
 
     def create_plot_area(self):
-        """Создание области для отображения графика."""
         fig = plt.Figure(figsize=(6, 4), dpi=100)
         canvas = FigureCanvasTkAgg(fig, master=self.root)
         canvas_widget = canvas.get_tk_widget()
@@ -258,7 +228,6 @@ class NGSPICESimulatorApp:
         ax = fig.add_subplot(111)
         ax.grid(True, which="both", linestyle="--", linewidth=0.5)
 
-        # Добавляем курсор для приближения/отдаления
         self.cursor = Cursor(ax, useblit=True, color='red', linewidth=1)
 
         return fig, canvas
@@ -426,21 +395,6 @@ class NGSPICESimulatorApp:
             self.canvas_plot.draw()
         else:
             print("Параметр 'fig' не должен быть None")
-    
-    def save_plot(self):
-        """Сохранение графика в папку pics/ с названием, содержащим дату и время."""
-        # Ensure the directory exists
-        os.makedirs('pics', exist_ok=True)
-
-        # Get the current date and time
-        current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-        # Define the file path with the timestamp
-        file_path = os.path.join('pics', f'plot_{current_time}.png')
-
-        # Save the figure
-        self.fig.savefig(file_path)
-        messagebox.showinfo("Сохранение графика", f"График сохранён в {file_path}")
 
 
 if __name__ == "__main__":
