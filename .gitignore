@@ -1,32 +1,56 @@
+# Ignore all files by default
+code/asmhemt/vacode/*
+code/mextram/vacode/*
+code/mextram/vacode504p12p1/*
+code/mextram/vacode505p2p0/*
+examples/asmhemt/*
+examples/mextram/*
+
+# Allow specific file extensions in examples (only .sp files)
+!examples/asmhemt/**/*.sp
+!examples/mextram/**/*.sp
+
+# Allow specific file extensions in vacode directories
+!code/asmhemt/vacode/**/*.va
+!code/asmhemt/vacode/**/*.h
+!code/asmhemt/vacode/**/*.inc
+!code/mextram/vacode/**/*.va
+!code/mextram/vacode/**/*.h
+!code/mextram/vacode/**/*.inc
+!code/mextram/vacode504p12p1/**/*.va
+!code/mextram/vacode504p12p1/**/*.h
+!code/mextram/vacode504p12p1/**/*.inc
+!code/mextram/vacode505p2p0/**/*.va
+!code/mextram/vacode505p2p0/**/*.h
+!code/mextram/vacode505p2p0/**/*.inc
+!
+# Ignore Python virtual environments
+.venv/
+venv/
+env/
+.env
+.env/
+
 # Ignore Python cache files
 __pycache__/
 
-# Ignore shell and batch scripts
+# Ignore specific scripts
 data/code/*.sh
 data/code/*.bat
 
-###########################
+# Ignore common documentation files
 data/code/**/**/Changelog
 data/code/**/**/NOTICE
 data/code/**/**/VERSION
 data/code/**/**/discipline.h
 data/code/**/**/IP_NOTICE_DISCLAIMER_LICENSE
 data/code/**/**/*.txt
-##########################
 
-# Verilog-A
+# Ignore Verilog-A files
 data/code/**/vacode/openvaf
+data/code/**/vacode504p12p1/openvaf
+data/code/**/vacode505p2p0/openvaf
 
-# osdilibs
-data/osdilibs/**
 
-# Ignore virtual environments
-venv/
-
-# Temporarily unavailable examples
+# Ignore examples temporarily unavailable
 data/examples/**/Xyce
-
-# Ignore specific modified files
-data/code/ASMHEMT/vacode/**
-data/code/mextram/vacode/**
-data/raw/**
