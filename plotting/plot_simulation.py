@@ -51,12 +51,13 @@ class Plotter(DataPlotter):
         ax = fig.add_subplot(111)
 
         column_names = data.columns
+        print(column_names)
         for column in column_names[2:]:
             ax.plot(data[column_names[1]], data[column], label=column)
 
         ax.set_xlabel(column_names[1])
-        ax.set_ylabel("Current (A)")
-        ax.set_title("Current vs. Voltage Sweep")  # TODO сделать динамическое изменение название
+        ax.set_ylabel("DO IT DYNAMIC")
+        ax.set_title("DO DYNAMIC TITAL")  # TODO сделать динамическое изменение название
         ax.legend()
         ax.grid(True, which="both", linestyle="--", linewidth=0.5)  # TODO сделать выбор цвета динамически
 
