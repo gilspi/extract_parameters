@@ -103,26 +103,32 @@ Index   v-sweep         v(dt)           abs(i(vd))
 
 ```plaintext
 extract_parameters/
-├── main.py                     # Главный файл для запуска приложения.
-├── config.py                   # Конфигурации и глобальные константы.
-├── gui.py                      # Папка с кодом, связанным с графическим интерфейсом.
-├── core/                       # Основная логика приложения.
+├── main.py                             # Главный файл для запуска приложения.
+├── config.py                           # Конфигурации и глобальные константы.
+├── gui.py                              # Мдуль с кодом, связанным с графическим интерфейсом.
+├── core/                               # Основная логика приложения.
 │   ├── __init__.py
-│   ├── simulation_runner.py    # Управление симуляцией.
-│   ├── parameter_parser.py     # Логика парсинга параметров.
-│   ├── osdi_manager.py         # Управление файлами .osdi.
-│   └── file_manager.py         # Управление файлами и их модификацией.
-├── plotting/                   # Все, что связано с визуализацией.
+│   ├── simulation_runner.py            # Управление симуляцией.
+│   ├── osdi_manager.py                 # Управление файлами .osdi.
+│   └── file_manager.py                 # Управление файлами и их модификацией.
+├── plotting/                           # Все, что связано с визуализацией.
 │   ├── __init__.py
-│   ├── plot_simulation.py      # Отображение графиков.
-│   ├── simulation_manager.py   # Управление данными для графиков.
-│   └── export_manager.py       # Экспорт графиков или данных.
-|── examples/                   # Примеры файлов.
-|   ├── ASMHEMT/
-|   │   └── nfet_id_vd_vg.sp   # Пример SPICE-файлов.
-└── code/                   # Примеры файлов.
-    ├── ASMHEMT/
-    │   └── asmhemt.va   # Пример VA-моделей.
+│   ├── plot_simulation.py              # Отображение графиков.
+|── data/                               # Примеры файлов.
+|   ├── code/
+|   │   └── ASMHEMT/asmhemt.va          # Пример VA-файлов.
+|   ├── examples/
+|   │   └── ASMHEMT/nfet_id_vd_vg.sp    # Пример SPICE-файлов.
+|   ├── osdilibs/
+|   │   └── asmhemt.osdi                # Пример OSDI-моделей.
+|   ├── raw/
+|   │   └── simulation_data.txt         # Точки графика.
+├── graphics/                           
+│   ├── ui.py                           # Отображение главного окна.
+│   ├── handlers.py                     # Управление главным окном.
+├── utils/                           
+│   ├── parameter_parser.py             # Логика парсинга параметров.
+│   ├── utils.py                        # Дополнительные утилиты.
 ```
 
 16. Графики. Модуль plotting -> plot_simulation.py

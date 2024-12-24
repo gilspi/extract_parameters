@@ -1,10 +1,12 @@
 import os
 from datetime import datetime
+import time
 import tkinter as tk
 from tkinter import messagebox, filedialog, ttk
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.widgets import Cursor
+from matplotlib.patches import Rectangle
 from core.simulation_runner import SimulationRunner
 from utils.parameter_parser import ParameterParser, FileIgnoreParamsLoader
 from core.file_manager import FileManager
@@ -24,21 +26,20 @@ class NGSPICESimulatorApp:
         self.file_manager = FileManager()
         self.parameter_entries = []
 
-        self.original_xlim = None
-        self.original_ylim = None
-
-        self.pan_start = None
-
         self.scrollable_frame = None
         self.canvas_frame = None
         self.canvas_scrollbar = None
-
         self.create_interface()
 
-        self.canvas_plot.mpl_connect('button_press_event', self.on_press)
-        # self.canvas_plot.mpl_connect('motion_notify_event', self.on_motion)
-        self.canvas_plot.mpl_connect('button_release_event', self.on_release)
+        """Область отвечающая за обработку zoom на графике"""
         self.canvas_plot.mpl_connect('scroll_event', self.on_scroll)
+
+        """Область отвечающая за обработку действий на графике"""
+        self.start_point = None
+        self.selection_rect = None
+        self.canvas_plot.mpl_connect('button_press_event', self.on_press)
+        self.canvas_plot.mpl_connect('motion_notify_event', self.on_motion)
+        self.canvas_plot.mpl_connect('button_release_event', self.on_release)
 
     # def create_sliders(self):
     #     """Создание слайдеров для управления пределами осей."""
@@ -97,22 +98,6 @@ class NGSPICESimulatorApp:
 
     #         self.canvas_plot.draw()
 
-    # def on_motion(self, event: MouseEvent):
-    #     """Обработка перемещения мыши для перемещения графика."""
-    #     if self.pan_start is not None and event.inaxes:
-    #         ax = event.inaxes
-    #         dx = event.xdata - self.pan_start[0]
-    #         dy = event.ydata - self.pan_start[1]
-
-    #         xlim = ax.get_xlim()
-    #         ylim = ax.get_ylim()
-
-    #         ax.set_xlim(xlim[0] - dx, xlim[1] - dx)
-    #         ax.set_ylim(ylim[0] - dy, ylim[1] - dy)
-
-    #         self.update_sliders_from_plot()
-    #         self.canvas_plot.draw()
-
     # def reset_plot_scale(self):
     #     """Сброс масштаба графика на исходное значение."""
     #     if self.original_xlim is None or self.original_ylim is None:
@@ -154,25 +139,48 @@ class NGSPICESimulatorApp:
         self.canvas_plot.draw()
 
     def on_press(self, event: MouseEvent):
-        """Обработка нажатия мыши для начала перемещения графика."""
+        """Начало выделения области на графике."""
         if event.inaxes:
-            self.pan_start = (event.xdata, event.ydata)
+            self.start_point = (event.xdata, event.ydata)
 
-    def on_click(self, event: MouseEvent):
-        """Обработка нажатия на график для активации зума."""
-        if event.inaxes:
+            if self.selection_rect is None:
+                self.selection_rect = Rectangle(
+                    (event.xdata, event.ydata), 0, 0,
+                    edgecolor="red", facecolor="none", linewidth=1.5
+                )
+                event.inaxes.add_patch(self.selection_rect)
+
+    def on_motion(self, event: MouseEvent):
+        """Обновление прямоугольника выделения."""
+        if not self.start_point or not event.inaxes:
+            return
+        
+        x0, y0 = self.start_point
+        x1, y1 = event.xdata, event.ydata
+
+        self.selection_rect.set_width(x1 - x0)
+        self.selection_rect.set_height(y1 - y0)
+        self.selection_rect.set_xy((x0, y0))
+        self.canvas_plot.draw()
+
+    def on_release(self, event: MouseEvent):
+        """При отпускании мыши область приближается."""
+        if not self.start_point or not event.inaxes:
+            return
+        
+        x0, y0 = self.start_point
+        x1, y1 = event.xdata, event.ydata
+
+        if x0 != x1 and y0 != y1:
             ax = event.inaxes
-            # Фокусируемся на точке клика, например, приближаем на 20% в том месте
-            x_center = event.xdata
-            y_center = event.ydata
-
-            if x_center is not None and y_center is not None:
-                ax.set_xlim([x_center - (ax.get_xlim()[1] - ax.get_xlim()[0]) * 0.2, 
-                             x_center + (ax.get_xlim()[1] - ax.get_xlim()[0]) * 0.2])
-                ax.set_ylim([y_center - (ax.get_ylim()[1] - ax.get_ylim()[0]) * 0.2, 
-                             y_center + (ax.get_ylim()[1] - ax.get_ylim()[0]) * 0.2])
-
-                self.canvas_plot.draw()
+            ax.set_xlim(min(x0, x1), max(x0, x1))
+            ax.set_ylim(min(y0, y1), max(y0, y1))
+            self.canvas_plot.draw()
+        
+        self.start_point = None
+        if self.selection_rect:
+            self.selection_rect.remove()
+            self.selection_rect = None
 
     def create_interface(self):
         """Sets up the GUI interface for the NGSPICESimulatorApp."""
@@ -200,10 +208,6 @@ class NGSPICESimulatorApp:
         tk.Button(self.root, text="Сохранить график", command=self.save_plot).grid(row=7, column=3, sticky="ew")
 
         # self.create_sliders()
-
-    def on_release(self, event: MouseEvent):
-        """Обработка отпускания кнопки мыши для завершения перемещения."""
-        self.pan_start = None
 
     def create_scrollable_frame(self):
         """Создание области с прокруткой для параметров."""
@@ -238,6 +242,9 @@ class NGSPICESimulatorApp:
 
         ax = fig.add_subplot(111)
         ax.grid(True, which="both", linestyle="--", linewidth=0.5)
+
+        self.original_xlim = ax.get_xlim()
+        self.original_ylim = ax.get_ylim()
 
         self.cursor = Cursor(ax, useblit=True, color='red', linewidth=1)
 

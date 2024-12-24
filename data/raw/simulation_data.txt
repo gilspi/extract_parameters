@@ -1,5 +1,5 @@
                       sample netlist asmhemt: id plot hemt
-                      DC transfer characteristic  Sun Dec 22 22:25:11  2024
+                      DC transfer characteristic  Tue Dec 24 19:04:38  2024
 --------------------------------------------------------------------------------
 Index   v-sweep         v(dt)           abs(i(vd))      
 --------------------------------------------------------------------------------
