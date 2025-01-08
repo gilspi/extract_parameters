@@ -21,6 +21,7 @@ plot -i(vd)
 settype temperature v(dt)
 plot v(dt)
 print v(dt) abs(i(vd)) > data/raw/simulation_data.txt
+*print v(dt) abs(i(vd)) > /home/gilspi/Desktop/progs/extract_parameters/data/reference/reference_data.txt
 .endc
 
 .end

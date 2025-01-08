@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from typing import List, Optional, Protocol
 import re
-from config import SIMULATION_RAW_DATA_PATH
+from config import SIMULATION_RAW_DATA_PATH, REFERENCE_MODEL_CODE_PATH
 
 
 class DataLoader(Protocol):
@@ -46,27 +46,14 @@ class Loader(DataLoader):
 
 
 class Plotter(DataPlotter):
-    def plot(self, data: pd.DataFrame, fig, canvas=None):
-        fig.clear()
-        ax = fig.add_subplot(111)
-
+    def plot(self, data: pd.DataFrame, ax, label: str, color: str, linestyle: str):
+        """
+        Строит график на переданном ax.
+        """
         column_names = data.columns
-        print(column_names)
         for column in column_names[2:]:
-            ax.plot(data[column_names[1]], data[column], label=column)
+            ax.plot(data[column_names[1]], data[column], label=label, color=color, linestyle=linestyle)
 
-        ax.set_xlabel(column_names[1])
-        ax.set_ylabel("DO IT DYNAMIC")
-        ax.set_title("DO DYNAMIC TITAL")  # TODO сделать динамическое изменение название
-        ax.legend()
-        ax.grid(True, which="both", linestyle="--", linewidth=0.5)  # TODO сделать выбор цвета динамически
-
-        ax.set_yscale("log")
-
-        if canvas:
-            canvas.draw()
-        else:
-            print("Параметр 'canvas' равен None, пропуск обновления")
 
 
 class SimulationManager:
@@ -74,20 +61,39 @@ class SimulationManager:
         self.data_loader = Loader()
         self.data_plotter = Plotter()
 
-    def run(self, fig, canvas=None, filename="simulation_data.txt"):
+    def run(self, fig, canvas, user_filename: str, reference_filename: str):
         """
-        TODO: добавить динамическое название для файла из GUI
+        Отображает два графика: эталонный и пользовательский.
         """
         try:
-            print(f"Чтение файла: {filename}")
-            data = self.data_loader.load_data(f"{SIMULATION_RAW_DATA_PATH}{filename}")
-            print(f"Данные загружены: {data.head()}")
+            # Загрузка данных
+            print(f"Чтение эталонных данных из {reference_filename}")
+            reference_data = self.data_loader.load_data(reference_filename)
+            print(f"Чтение пользовательских данных из {user_filename}")
+            user_data = self.data_loader.load_data(user_filename)
 
-            print("Построение графика")
+            # Построение графиков
+            print("Построение графиков")
             if fig is None:
                 raise ValueError("Параметр 'fig' не должен быть None")
-            
-            self.data_plotter.plot(data, fig, canvas)
+
+            fig.clear()
+            ax = fig.add_subplot(111)
+
+            # Построение эталонного графика
+            self.data_plotter.plot(reference_data, ax, label="Эталонный график", color="blue", linestyle="--")
+
+            # Построение пользовательского графика
+            self.data_plotter.plot(user_data, ax, label="Пользовательский график", color="red", linestyle="-")
+
+            ax.set_xlabel("Напряжение (V)")
+            ax.set_ylabel("Ток (A)")
+            ax.set_title("Сравнение графиков")
+            ax.legend()
+            ax.grid(True)
+
+            if canvas:
+                canvas.draw()
         except Exception as e:
             print(f"Ошибка построения графика: {e}")
 

@@ -19,6 +19,8 @@ MODEL_CODE_PATH = os.path.join(PROJECT_PATH, "data/code/")
 # print(MODEL_CODE_PATH)
 SPICE_EXAMPLES_PATH = os.path.join(PROJECT_PATH, "data/examples/")
 # print(SPICE_EXAMPLES_PATH)
+REFERENCE_MODEL_CODE_PATH = os.path.join(PROJECT_PATH, "data/reference/")
+# print(REFERENCE_MODEL_CODE_PATH)
 # TODO: нужно выполнять поиск файла с помощью os
 
 # FOLDER_NAME = "mextram"  # FIXME: пока что код работает только с mextram

@@ -26,6 +26,8 @@ class NGSPICESimulatorApp:
         self.file_manager = FileManager()
         self.parameter_entries = []
 
+        self.spice_file = None
+
         self.scrollable_frame = None
         self.canvas_frame = None
         self.canvas_scrollbar = None
@@ -40,63 +42,6 @@ class NGSPICESimulatorApp:
         self.canvas_plot.mpl_connect('button_press_event', self.on_press)
         self.canvas_plot.mpl_connect('motion_notify_event', self.on_motion)
         self.canvas_plot.mpl_connect('button_release_event', self.on_release)
-
-    # def create_sliders(self):
-    #     """Создание слайдеров для управления пределами осей."""
-    #     # Слайдер для X-оси
-    #     self.x_max_slider = tk.Scale(
-    #         self.root, from_=0, to=100, orient="horizontal", command=self.update_plot_from_sliders
-    #     )
-    #     self.x_max_slider.grid(row=5, column=3, sticky="ew")
-
-    #     # Слайдер для Y-оси
-    #     self.y_max_slider = tk.Scale(
-    #         self.root, from_=100, to=0, orient="vertical", command=self.update_plot_from_sliders
-    #     )
-    #     self.y_max_slider.grid(row=1, column=2, rowspan=4, sticky="ns")
-
-    #     # Установка начальных значений
-    #     self.update_sliders_from_plot()
-
-    # def update_sliders_from_plot(self):
-    #     """Обновление слайдеров на основе текущих значений пределов графика."""
-    #     if self.fig:
-    #         ax = self.fig.axes[0]
-    #         xlim = ax.get_xlim()
-    #         ylim = ax.get_ylim()
-
-    #         # Обновляем значения слайдеров
-    #         self.x_max_slider.config(from_=xlim[0], to=xlim[1])
-    #         self.y_max_slider.config(from_=ylim[1], to=ylim[0])
-
-    #         self.x_max_slider.set(xlim[1])
-    #         self.y_max_slider.set(ylim[0])
-
-    # def update_plot_from_sliders(self, event=None):
-    #     """Обновление графика на основе значений слайдеров."""
-    #     if self.fig and self.fig.axes:
-    #         ax = self.fig.axes[0]
-
-    #         # Получаем значения слайдеров
-    #         x_max = self.x_max_slider.get()
-    #         y_max = self.y_max_slider.get()
-
-    #         # Проверяем, что значения слайдеров являются допустимыми числами
-    #         if not isinstance(x_max, (int, float)) or not isinstance(y_max, (int, float)):
-    #             print("Ошибка: значения слайдеров должны быть числами.")
-    #             return
-
-    #         # Проверяем, что значения слайдеров не равны нулю
-    #         if x_max <= 0:
-    #             x_max = 0.1  # Устанавливаем минимальное значение
-    #         if y_max <= 0:
-    #             y_max = 0.1  # Устанавливаем минимальное значение
-
-    #         # Обновляем пределы графика
-    #         ax.set_xlim(right=x_max)
-    #         ax.set_ylim(top=y_max)
-
-    #         self.canvas_plot.draw()
 
     # def reset_plot_scale(self):
     #     """Сброс масштаба графика на исходное значение."""
@@ -285,19 +230,22 @@ class NGSPICESimulatorApp:
 
     def choose_spice_file(self):
         """Выбор SPICE-файла."""
-        parsing_file_path = self.parsing_file.get()
-        parent_dir_name = os.path.basename(os.path.dirname(os.path.dirname(parsing_file_path)))
-        initial_dir = os.path.join(SPICE_EXAMPLES_PATH, parent_dir_name)
-    
-        spice_file = filedialog.askopenfilename(
-            title="Выберите SPICE-файл",
-            initialdir=initial_dir,
-            filetypes=(("SPICE files", "*.sp *.cir"), ("All files", "*.*"))
-        )
-    
-        if spice_file:
-            self.spice_file = spice_file
-            messagebox.showinfo("Файл выбран", f"Выбранный файл: {spice_file}")
+        try:
+            parsing_file_path = self.parsing_file.get()
+            parent_dir_name = os.path.basename(os.path.dirname(os.path.dirname(parsing_file_path)))
+            initial_dir = os.path.join(SPICE_EXAMPLES_PATH, parent_dir_name)
+        
+            spice_file = filedialog.askopenfilename(
+                title="Выберите SPICE-файл",
+                initialdir=initial_dir,
+                filetypes=(("SPICE files", "*.sp *.cir"), ("All files", "*.*"))
+            )
+        
+            if spice_file:
+                self.spice_file = spice_file
+                messagebox.showinfo("Файл выбран", f"Выбранный файл: {spice_file}")
+        except Exception as e:
+            messagebox.showerror("Ошибка", f"Ошибка при выборе SPICE-файла: {e}")
 
     def update_parameters(self, parsing_file):
         """Обновление параметров на основе выбранного файла."""
@@ -369,7 +317,7 @@ class NGSPICESimulatorApp:
             self.simulation_runner.run_simulation(
                 spice_file=self.spice_file,
                 canvas=self.canvas_plot,
-                fig=self.fig
+                fig=self.fig,
             )
             messagebox.showinfo("Успех", "Симуляция завершена успешно.")
         except Exception as e:
