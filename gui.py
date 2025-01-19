@@ -11,7 +11,7 @@ from core.simulation_runner import SimulationRunner
 from utils.parameter_parser import ParameterParser, FileIgnoreParamsLoader
 from core.file_manager import FileManager
 from matplotlib.backend_bases import MouseEvent
-from config import IGNORE_PARAMS_FILE, PICS_PATH, MODEL_CODE_PATH, SPICE_EXAMPLES_PATH
+from config import DIRECTORY, IGNORE_PARAMS_FILE, PICS_PATH, MODEL_CODE_PATH, SPICE_EXAMPLES_PATH
 
 
 class NGSPICESimulatorApp:
@@ -42,6 +42,13 @@ class NGSPICESimulatorApp:
         self.canvas_plot.mpl_connect('button_press_event', self.on_press)
         self.canvas_plot.mpl_connect('motion_notify_event', self.on_motion)
         self.canvas_plot.mpl_connect('button_release_event', self.on_release)
+
+        self.__setup_directroies()
+
+    def __setup_directroies(self):
+        for directory in DIRECTORY:
+            if not os.path.exists(directory):
+                os.makedirs(directory)
 
     # def reset_plot_scale(self):
     #     """Сброс масштаба графика на исходное значение."""
@@ -310,6 +317,8 @@ class NGSPICESimulatorApp:
         if self.fig:  # clean canvas/fig
             self.fig.clear()
             self.canvas_plot.draw()
+        
+
 
         try:
             self.simulation_runner.run_simulation(
