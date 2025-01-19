@@ -9,6 +9,10 @@ import tkinter as tk
 from tkinter import messagebox, filedialog
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
+
+
+
+
 # пользовательские библиотеки
 from config import PROJECT_PATH, OSDILIBS_PATH
 from utils import find_file, modify_parameters
@@ -27,7 +31,9 @@ EXAMPLES_PATH = os.path.join(PROJECT_PATH, f"examples/{FOLDER_NAME}/ngspice/")
 SPICE_FILE = "npn_ic_ib_is_vb.sp"  # FIXME: нужно сделать так чтобы можно было пользователь мог подгружать схему
 ####################################################################################
 
+
 spice_file = None  # find_file(SPICE_FILE)
+
 # print(spice_file)
 
 
@@ -130,6 +136,8 @@ entry_nff.grid(row=1, column=1, padx=5, pady=5)
 tk.Label(root, text="nfr:").grid(row=2, column=0, padx=5, pady=5)
 entry_nfr = tk.Entry(root)
 entry_nfr.grid(row=2, column=1, padx=5, pady=5)
+
+
 
 run_button = tk.Button(root, text="Запустить симуляцию",
                        command=lambda:start_simulation(canvas, fig, spice_file))

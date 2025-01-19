@@ -20,7 +20,9 @@ dc vc 0 5.0 0.05 ib 2u 10u 2u
 plot abs(i(vc)) xlabel Vce title Output-Characteristic
 settype temperature v(dt)
 plot v(dt)
+
 print v(dt) abs(i(vc)) > simulation_data.txt
+
 .endc
 
 .end
