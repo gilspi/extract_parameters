@@ -15,6 +15,7 @@ rth0 dt 0 5.0
 pre_osdi ../../osdilibs/asmhemt.osdi
 dc vd -1.0 1.0 0.001 vg -0.5 0.5 0.5
 plot -i(vd)
+print -i(vd) > data/raw/simulation_data.txt
 let gx=deriv(-i(vd))
 plot gx
 let gx2=deriv(gx)
@@ -23,7 +24,6 @@ let gx3=deriv(gx2)
 plot gx3
 *let gx4=deriv(gx3)
 *plot gx4
-print gx gx2 gx3 > data/raw/simulation_data.txt
 .endc
 
 .end

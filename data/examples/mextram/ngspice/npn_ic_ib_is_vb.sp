@@ -18,7 +18,8 @@ pre_osdi ../../../osdilibs/bjt505.osdi
 dc vb 0.2 1.4 0.01
 plot abs(i(vc)) abs(i(vb)) abs(i(vs)) ylog xlimit 0.3 1.4 ylimit 1e-12 100e-3
 *plot abs(i(vc))/abs(i(vb)) vs abs(-i(vc)) xlog xlimit 1e-09 10e-3 ylimit 0 200
-print abs(i(vc)) abs(i(vb)) abs(i(vs)) > data/raw/simulation_data.txt
+print abs(i(vc)) abs(i(vb)) abs(i(vs)) > /home/gilspi/Desktop/progs/extract_parameters/data/raw/simulation_data.txt
+*print [add-pointers from plot and do other print like that] > /home/gilspi/Desktop/progs/extract_parameters/data/raw/simulation_data.txt
 .endc
 
 

@@ -22,9 +22,9 @@ aliasparam dtemp = dta;
 `endif
 
 // main current parameters
-`MPRoz( is             ,0.1,"A"                                      ,"Saturation current of main current" )
-`MPRco( nff            ,1.0,""            ,1.0         ,inf          ,"Non-ideality factor of forward main current" )
-`MPRco( nfr            ,1.0,""            ,1.0         ,inf          ,"Non-ideality factor of reverse main current" )
+`MPRoz( is             ,22.0a          ,"A"                                      ,"Saturation current of main current" )
+`MPRco( nff            ,1.0            ,""            ,1.0         ,inf          ,"Non-ideality factor of forward main current" )
+`MPRco( nfr            ,1.0            ,""            ,1.0         ,inf          ,"Non-ideality factor of reverse main current" )
 `MPRco( ik             ,0.1            ,"A"           ,1.0p        ,inf          ,"CE high injection knee current" )
 `MPRco( ver            ,2.5            ,"V"           ,0.01        ,inf          ,"Reverse Early voltage" )
 `MPRco( vef            ,44.0           ,"V"           ,0.01        ,inf          ,"Forward Early voltage" )
@@ -36,7 +36,7 @@ aliasparam dtemp = dta;
 `MPRco( nbis           ,1.0            ,""            ,0.1         ,inf          ,"Non-ideality factor of ideal side wall base current" )
 `MPRcz( ibf            ,2.7f           ,"A"                                      ,"Saturation current of non-ideal forward base current" )
 `MPRco( mlf            ,2.0            ,""            ,0.1         ,inf          ,"Non-ideality factor of non-ideal forward base current" )
-`MPRcz( ibfs           ,0.2            ,"A"                                      ,"Saturation current of non-ideal side wall forward base current" )
+`MPRcz( ibfs           ,0.0            ,"A"                                      ,"Saturation current of non-ideal side wall forward base current" )
 `MPRco( mlfs           ,2.0            ,""            ,0.1         ,inf          ,"Non-ideality factor of non-ideal side wall forward base current" )
 // forward base current with swib1 = 1
 `MPIcc( swib1          ,0              ,""            ,0           ,1            ,"Switch of Ib1 and Ib1s model" )
@@ -147,10 +147,10 @@ aliasparam dtemp = dta;
 `MPRco( vgcx           ,1.125          ,"V"           ,0.1         ,inf          ,"Band-gap voltage of extrinsic collector" )
 `MPRco( vgj            ,1.15           ,"V"           ,0.1         ,inf          ,"Band-gap voltage recombination EB junction" )
 `MPRco( vgzeb          ,1.15           ,"V"           ,0.1         ,inf          ,"Band-gap voltage at Tref for EB tunneling" )
-`MPRnb( avgeb          ,4.73e-4        ,"V/K"                                    ,"Temperature coefficient of band-gap voltage for EB tunneling" )
+`MPRnb( avgeb          ,0.000473        ,"V/K"                                    ,"Temperature coefficient of band-gap voltage for EB tunneling" )
 `MPRcz( tvgeb          ,636.0          ,"K"                                      ,"Temperature coefficient of band-gap voltage for EB tunneling" )
 `MPRco( vgzcb          ,1.15           ,"V"           ,0.1         ,inf          ,"Band-gap voltage at Tref for CB tunneling" )
-`MPRnb( avgcb          ,4.73e-4        ,"V/K"                                    ,"Temperature coefficient of band-gap voltage for CB tunneling" )
+`MPRnb( avgcb          ,0.000473        ,"V/K"                                    ,"Temperature coefficient of band-gap voltage for CB tunneling" )
 `MPRcz( tvgcb          ,636.0          ,"K"                                      ,"Temperature coefficient of band-gap voltage for CB tunneling" )
 `MPRnb( dvgte          ,0.05           ,"V"                                      ,"Band-gap voltage difference of emitter stored charge" )
 `MPRnb( dais           ,0.0            ,""                                       ,"Fine tuning of temperature dependence of CE saturation current" )
@@ -198,8 +198,9 @@ aliasparam dtemp = dta;
 
 `MPRcc( vexlim         ,400.0          ,""            ,40.0        ,400.0       ,"Upper limit of exp() function argument for convergence" )
 
-`MPRcc( p0starlim      ,1.0e-40        ,""            ,0.0         ,1.0e-20     ,"Lower limit for p0star clipping" )
-`MPRcc( pwlim          ,1.0e-40        ,""            ,0.0         ,1.0e-20     ,"Lower limit for pW clipping" )
+
+`MPRcc( p0starlim      ,1e-40        ,""            ,0.0         ,1.0e-20     ,"Lower limit for p0star clipping" )
+`MPRcc( pwlim          ,1e-40        ,""            ,0.0         ,1.0e-20     ,"Lower limit for pW clipping" )
 
 `MPRcz( minr           ,$simparam("minr", 1.0e-3)         ,"Ohm"                ,"Minimum resistance" )
 

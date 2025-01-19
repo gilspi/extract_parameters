@@ -7,15 +7,14 @@ ccouple 1 b 1
 
 ibias 0 b 100u
 
-rload 4 c 1k
-*noisy=0 была ошибка, которую устранили убрав эту команду, описать этот нюанс в курсовой
+rload 4 c 1k noisy=0
 
 NQ1 C B 0 0 BJTRF1
 
 *.model BJTRF1 bjt504_va
 *.model BJTRF1 bjt504t_va
-*.model BJTRF1 bjt505_va
-.model BJTRF1 bjt505t_va
+.model BJTRF1 bjt505_va
+*.model BJTRF1 bjt505t_va
 
 .control
 *pre_osdi ../../../osdilibs/bjt504.osdi
@@ -29,7 +28,6 @@ setplot
 setplot noise1
 plot ally
 plot inoise_spectrum onoise_spectrum loglog
-print inoise_spectrum onoise_spectrum loglog > data/raw/simulation_data.txt
 setplot noise2
 print all
 .endc
