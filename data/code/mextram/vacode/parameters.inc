@@ -198,7 +198,6 @@ aliasparam dtemp = dta;
 
 `MPRcc( vexlim         ,400.0          ,""            ,40.0        ,400.0       ,"Upper limit of exp() function argument for convergence" )
 
-
 `MPRcc( p0starlim      ,1e-40        ,""            ,0.0         ,1.0e-20     ,"Lower limit for p0star clipping" )
 `MPRcc( pwlim          ,1e-40        ,""            ,0.0         ,1.0e-20     ,"Lower limit for pW clipping" )
 

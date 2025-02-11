@@ -1,17 +1,17 @@
-from tkinter import Tk
-from gui import NGSPICESimulatorApp
-
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
+from gui import NGSPICESimulatorApp  # Импортируем ваш главный класс интерфейса
 
 def main():
     """
-    Основная функция для запуска приложения NGSPICE Simulator. 
-    Эта функция создает корневое окно Tkinter, инициализирует приложение NGSPICESimulatorApp, 
-    и запускает главный цикл Tkinter для обработки событий.
+    Основная функция для запуска приложения NGSPICE Simulator с использованием GTK.
     """
-    root = Tk()
-    app = NGSPICESimulatorApp(root)
-    root.mainloop()
-
+    # Создаем окно приложения
+    app = NGSPICESimulatorApp()
+    app.connect("destroy", Gtk.main_quit)  # Завершаем приложение при закрытии окна
+    app.show_all()  # Отображаем все элементы интерфейса
+    Gtk.main()  # Запускаем главный цикл GTK для обработки событий
 
 if __name__ == "__main__":
     main()

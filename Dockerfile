@@ -1,17 +1,19 @@
-# Используем базовый образ Python
 FROM python:3.10-slim
 
-# Устанавливаем рабочую директорию в контейнере
 WORKDIR /app
 
-# Копируем файлы проекта в контейнер
-COPY . /app
+COPY . .
 
-# Устанавливаем зависимости
-RUN pip install --no-cache-dir -r requirements.txt
+RUN apt-get install && apt-get install -y \
+    libx11-6 \ 
+    libxext-dev \
+    libxrender-dev \
+    libxinerama-dev \
+    libxi-dev \
+    libxrandr-dev \
+    libxcursor-dev \
+    libxtst-dev \
+    tk-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Открываем порт (например, для работы API)
-EXPOSE 5000
-
-# Команда для запуска приложения
 CMD ["python", "main.py"]

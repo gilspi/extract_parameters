@@ -466,7 +466,7 @@ module asmhemt(d,g,s,b,dt);
     `IPRco( w              ,200.0e-6       ,"m"           ,20e-9       ,inf         ," Channel Width of a finger" )
     `IPIco( nf             ,1              ,""            ,1.0         ,inf         ," Number of fingers" )
     `MPRoo( epsilon        ,10.66e-11      ,"F/m"         ,0.0         ,inf         ," Dielectric Permittivity of AlGaN layer" )
-    `MPRcc( voff           ,-2.0           ,"V"           ,-100.0      ,5           ," Cut-off voltage" )
+    `MPRcc( voff           ,-3.0           ,"V"           ,-100.0      ,5           ," Cut-off voltage" )
     `MPRcc( asub           ,0.0            ,"V/V"         ,-100.0      ,100         ," Parameter for substrate coupling effects" )
     `MPRco( u0             ,170.0e-3       ,"m^2/(V * s)" ,0.0         ,inf         ," Low field mobility" )
     `MPRco( ua             ,0.0e-9         ,"V^-1"        ,0.0         ,inf         ," Mobility Degradation coefficient first order" )
