@@ -261,20 +261,17 @@ class NGSPICESimulatorApp:
             parser = ParameterParser(file_path=parsing_file, ignore_params_loader=ignore_params_loader)
             parameters = parser.parse()
 
-            if len(parameters) > 15:
-                self.create_scrollable_frame()
-                parent_frame = self.scrollable_frame
-            else:
-                parent_frame = self.root
+            self.create_scrollable_frame()
+            # parent_frame = self.scrollable_frame
 
-            for widget in parent_frame.winfo_children():
+            for widget in self.scrollable_frame.winfo_children():
                 widget.destroy()
 
             self.parameter_entries = []
 
             for i, param in enumerate(parameters):
-                tk.Label(parent_frame, text=param["name"]).grid(row=i, column=0, sticky="w", padx=5, pady=2)
-                entry = tk.Entry(parent_frame)
+                tk.Label(self.scrollable_frame, text=param["name"]).grid(row=i, column=0, sticky="w", padx=5, pady=2)
+                entry = tk.Entry(self.scrollable_frame)
                 entry.insert(0, str(param["default_value"]))
                 entry.grid(row=i, column=1, padx=5, pady=2)
 
@@ -318,8 +315,6 @@ class NGSPICESimulatorApp:
             self.fig.clear()
             self.canvas_plot.draw()
         
-
-
         try:
             self.simulation_runner.run_simulation(
                 spice_file=self.spice_file,
@@ -331,25 +326,6 @@ class NGSPICESimulatorApp:
             messagebox.showwarning(f"Предупреждение", f"{warning}")
         except Exception as e:
             messagebox.showerror("Ошибка симуляции", f"Ошибка симуляции: {e}")
-
-    def create_parameter_entries(self, parameters):
-        """Создаёт поля ввода для параметров."""
-        if self.parameter_entries:
-            for param in self.parameter_entries:
-                param["entry"].destroy()  # Удаляем старые поля ввода
-            self.parameter_entries.clear()
-
-        for i, param in enumerate(parameters):
-            # Имя параметра
-            tk.Label(self.scrollable_frame, text=param["name"]).grid(row=i, column=0, sticky="w", padx=5, pady=2)
-            
-            # Поле ввода
-            entry = tk.Entry(self.scrollable_frame)
-            entry.insert(0, str(param["default_value"]))  # Заполняем значением по умолчанию
-            entry.grid(row=i, column=1, padx=5, pady=2)
-
-            # Сохраняем ссылки на имя и поле ввода
-            self.parameter_entries.append({"name": param["name"], "entry": entry})
 
     def update_plot_scale(self):
         """Обновление масштаба графика."""
