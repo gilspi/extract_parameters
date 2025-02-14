@@ -1,63 +1,96 @@
-# Ignore all files by default
-code/asmhemt/vacode/*
-code/mextram/vacode/*
-code/mextram/**/*
-code/mextram/**/*
-examples/asmhemt/*
-examples/mextram/*
-
-# Allow specific file extensions in examples (only .sp files)
-!examples/asmhemt/**/*.sp
-!examples/mextram/**/*.sp
-
-# Allow specific file extensions in vacode directories
-!code/asmhemt/vacode/**/*.va
-!code/asmhemt/vacode/**/*.h
-!code/asmhemt/vacode/**/*.inc
-!code/mextram/vacode/**/*.va
-!code/mextram/vacode/**/*.h
-!code/mextram/vacode/**/*.inc
-!code/mextram/vacode504p12p1/**/*.va
-!code/mextram/vacode504p12p1/**/*.h
-!code/mextram/vacode504p12p1/**/*.inc
-!code/mextram/vacode505p2p0/**/*.va
-!code/mextram/vacode505p2p0/**/*.h
-!code/mextram/vacode505p2p0/**/*.inc
-
+# ==============================
+# General Git Ignore Structure
+# ==============================
 
 # Ignore Python virtual environments
 .venv/
 venv/
 env/
-.env
 .env/
+.envrc
+Pipfile
+Pipfile.lock
 
-# Ignore Python cache files
+# Ignore Python cache and compiled files
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyd
 
-# Ignore specific scripts
-data/code/*.sh
-data/code/*.bat
+# ==============================
+# Project-specific Ignore Rules
+# ==============================
 
-# Ignore common documentation files
-data/code/**/**/**.txt
-data/code/**/**/NOTICE
-data/code/**/**/VERSION
-data/code/**/**/IP_NOTICE_DISCLAIMER_LICENSE
-data/code/**/**/Changelog
+# Ignore all openvaf-related files in code/
+data/code/**/openvaf*
+data/code/**/openvaf.exe
 
-# Ignore Verilog-A files
-data/**/**/vacode/openvaf
-data/**/**/**/openvaf.exe
+# Ignore changes in examples/, except for .sp files
+data/examples/
+!data/examples/**/*.sp  
+data/osdilibs/
 
+# Ignore raw data files
+data/raw/
 
-# Ignore examples temporarily unavailable
-data/examples/**/Xyce
+# Ignore reference files
+data/reference/
 
-# Ignore saved plots
-pics/
-
-# Ignore other specific files
+# Ignore temporary and log files
 *.log
+*.tmp
+*.swp
+*.swo
 
-data/reference/*
+# Ignore executable and binary files
+*.exe
+*.out
+*.bin
+*.o
+*.so
+*.dll
+
+# Ignore shell and batch scripts in code/
+data/code/**/*.sh
+data/code/**/*.bat
+
+# Ignore documentation and metadata files
+docs/
+CHANGELOG.md
+data/**/*.txt
+data/**/NOTICE
+data/**/VERSION
+data/**/IP_NOTICE_DISCLAIMER_LICENSE
+data/**/Changelog
+
+# Ignore simulation results and stored plots
+pics/
+graphics/
+simulation_results/
+
+# Ignore temporary simulation data
+data/**/Xyce
+data/simulation_data/
+data/**.txt
+
+# ==============================
+# Additional Ignore Rules
+# ==============================
+
+# Ignore Draw.io and project visualization files
+*.drawio
+*.drawio~
+
+# Ignore project workspace settings (VSCode and other IDEs)
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Ignore temporary git-related files
+*.orig
+*.rej
+*.bak
+*.swp
+*.swo
