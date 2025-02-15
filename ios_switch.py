@@ -65,11 +65,13 @@ class IosStyleSwitch(Gtk.DrawingArea):
         def animate():
             self.animation_progress += step
             if (step > 0 and self.animation_progress >= target_progress) or \
-               (step < 0 and self.animation_progress <= target_progress):
+            (step < 0 and self.animation_progress <= target_progress):
                 self.animation_progress = target_progress
+                self.queue_draw()  # Обновляем отрисовку с финальным значением
                 self.animating = False
                 return False  # Останавливаем таймер
             self.queue_draw()
             return True  # Продолжаем анимацию
+
 
         GLib.timeout_add(16, animate)  # Запускаем анимацию (примерно 60 FPS)

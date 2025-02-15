@@ -16,6 +16,22 @@ from utils.parameter_parser import ParameterParser, FileIgnoreParamsLoader
 from config import MODEL_CODE_PATH, SPICE_EXAMPLES_PATH, IGNORE_PARAMS_FILE
 
 
+def shorten_file_path(full_path, max_length=40):
+    """
+    Если длина пути больше max_length, возвращает строку вида:
+    начало пути + "..." + имя файла
+    """
+    if len(full_path) <= max_length:
+        return full_path
+    filename = os.path.basename(full_path)
+    # Вычитаем длину файла и троеточия
+    remaining = max_length - len(filename) - 3
+    if remaining < 1:
+        # Если места совсем мало, возвращаем только имя файла с троеточием спереди
+        return "..." + filename[-(max_length-3):]
+    shortened = full_path[:remaining] + "..." + filename
+    return shortened
+
 class SimulatorHandlers:
     def __init__(self, app):
         self.app = app  # ссылка на главное приложение
@@ -39,10 +55,11 @@ class SimulatorHandlers:
 
         if dialog.run() == Gtk.ResponseType.OK:
             self.app.parsing_file = dialog.get_filename()
-            self.app.file_button.set_label(f"File: {self.app.parsing_file}")
             print(f"Parsing file selected: {self.app.parsing_file}")
             self.update_parameters(self.app.parsing_file)
-
+            # Используем функцию для сокращения длинного пути
+            short_path = shorten_file_path(self.app.parsing_file, max_length=40)
+            self.app.file_button.set_label(f"File: {short_path}")
         dialog.destroy()
 
     def update_parameters(self, parsing_file):
@@ -72,6 +89,7 @@ class SimulatorHandlers:
         label = Gtk.Label(label=param_name)
         entry = Gtk.Entry()
         entry.set_text(default_value)
+        entry.set_size_request(100, -1)
         switch = IosStyleSwitch(size=(50, 25))  # размеры переключателя
         switch.set_valign(Gtk.Align.CENTER)
         row.pack_start(label, False, False, 5)
@@ -198,48 +216,6 @@ class SimulatorHandlers:
         """Обновляет прогресс-бар в главном потоке."""
         if hasattr(self.app, 'progress_bar'):
             self.app.progress_bar.set_fraction(progress)
-
-    def on_draw_progress_bar(self, widget, cr):
-        # Отрисовывает пользовательский прогресс-бар
-        width = widget.get_allocated_width()
-        height = widget.get_allocated_height()
-        radius = height / 2
-
-        # Фон прогресс-бара
-        cr.set_source_rgb(0.85, 0.85, 0.85)
-        cr.arc(radius, radius, radius, 3.14, 1.5 * 3.14)
-        cr.arc(width - radius, radius, radius, 1.5 * 3.14, 0)
-        cr.arc(width - radius, height - radius, radius, 0, 0.5 * 3.14)
-        cr.arc(radius, height - radius, radius, 0.5 * 3.14, 3.14)
-        cr.close_path()
-        cr.fill()
-
-        # Заполненная часть
-        cr.set_source_rgb(0.66, 0.87, 0.68)  # Мягкий зеленый цвет
-        fill_width = max(radius * 2, width * self.progress_fraction)  # Минимум на старте
-        cr.arc(radius, radius, radius, 3.14, 1.5 * 3.14)
-        cr.arc(fill_width - radius, radius, radius, 1.5 * 3.14, 0)
-        cr.arc(fill_width - radius, height - radius, radius, 0, 0.5 * 3.14)
-        cr.arc(radius, height - radius, radius, 0.5 * 3.14, 3.14)
-        cr.close_path()
-        cr.fill()
-
-        # Текст прогресса
-        cr.set_source_rgb(0, 0, 0)
-        cr.select_font_face("Code", 0, 0)
-        cr.set_font_size(16)
-        progress_text = f"{int(self.progress_fraction * 100)}%"
-        text_extents = cr.text_extents(progress_text)
-        text_x = (width - text_extents.width) / 2
-        text_y = (height - text_extents.height) / 2 - text_extents.y_bearing
-        cr.move_to(text_x, text_y)
-        cr.show_text(progress_text)
-
-
-
-
-
-
 
 
     #TODO: это допилю сам
