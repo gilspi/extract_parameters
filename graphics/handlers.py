@@ -15,27 +15,28 @@ from core.simulation_runner import SimulationRunner
 from utils.parameter_parser import ParameterParser, FileIgnoreParamsLoader
 from config import MODEL_CODE_PATH, SPICE_EXAMPLES_PATH, IGNORE_PARAMS_FILE
 
+from utils import shorten_file_path
 
-def shorten_file_path(full_path, max_length=40):
-    """
-    Если длина пути больше max_length, возвращает строку вида:
-    начало пути + "..." + имя файла
-    """
-    if len(full_path) <= max_length:
-        return full_path
-    filename = os.path.basename(full_path)
-    # Вычитаем длину файла и троеточия
-    remaining = max_length - len(filename) - 3
-    if remaining < 1:
-        # Если места совсем мало, возвращаем только имя файла с троеточием спереди
-        return "..." + filename[-(max_length-3):]
-    shortened = full_path[:remaining] + "..." + filename
-    return shortened
+
 
 class SimulatorHandlers:
-    def __init__(self, app):
-        self.app = app  # ссылка на главное приложение
-        self.progress_fraction = 0.0  # прогресс заполнения (0.0 - 1.0)
+    def __init__(self, params_box, file_button, fig, ax, canvas_plot, progress_bar, parent_window):
+        self.parent_window = parent_window  # ссылка на главное приложение
+        self.progress_fraction = 0.0  # прогресс заполнения (0.0 - 1.0)   
+        
+        self.params_box = params_box
+        self.file_button = file_button
+        self.fig = fig
+        self.ax = ax
+        self.canvas_plot = canvas_plot
+        self.progress_bar = progress_bar
+
+        self.parsing_file = "No File Selected"
+        self.spice_file = None  # Путь к SPICE-файлу, выбранному пользователем
+        self.simulation_runner = None
+
+        self.parameter_entries = []  # Список для хранения виджетов ввода параметров
+                
 
     """ 
         parsing file button, it can be files with extensions -> .va/.inc 
@@ -47,19 +48,19 @@ class SimulatorHandlers:
         initial_dir = MODEL_CODE_PATH
         dialog = Gtk.FileChooserDialog(
             title="Выберите файл параметров", 
-            parent=self.app,
+            parent=self.parent_window,
             action=Gtk.FileChooserAction.OPEN
         )
         dialog.set_current_folder(initial_dir)  # установка директории
         dialog.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
 
         if dialog.run() == Gtk.ResponseType.OK:
-            self.app.parsing_file = dialog.get_filename()
-            print(f"Parsing file selected: {self.app.parsing_file}")
-            self.update_parameters(self.app.parsing_file)
+            self.parsing_file = dialog.get_filename()
+            print(f"Parsing file selected: {self.parsing_file}")
+            self.update_parameters(self.parsing_file)
             # Используем функцию для сокращения длинного пути
-            short_path = shorten_file_path(self.app.parsing_file, max_length=40)
-            self.app.file_button.set_label(f"File: {short_path}")
+            short_path = shorten_file_path(self.parsing_file, max_length=40)
+            self.file_button.set_label(f"File: {short_path}")
         dialog.destroy()
 
     def update_parameters(self, parsing_file):
@@ -69,16 +70,16 @@ class SimulatorHandlers:
             parser = ParameterParser(file_path=parsing_file, ignore_params_loader=ignore_params_loader)
             parameters = parser.parse()
 
-            for widget in self.app.params_box.get_children():
-                self.app.params_box.remove(widget)
+            for widget in self.params_box.get_children():
+                self.params_box.remove(widget)
 
-            self.app.parameter_entries = []
+            self.parameter_entries = []
 
             for param in parameters:
-                self.__add_parameter_row(self.app.params_box, param["name"], str(param["default_value"]))
+                self.__add_parameter_row(self.params_box, param["name"], str(param["default_value"]))
 
-            self.app.params_box.show_all()
-            self.app.simulation_runner = SimulationRunner(parsing_file)
+            self.params_box.show_all()
+            self.simulation_runner = SimulationRunner(parsing_file)
 
         except Exception as e:
             print(f"Ошибка при загрузке параметров: {e}")
@@ -96,22 +97,22 @@ class SimulatorHandlers:
         row.pack_start(entry, True, True, 5)
         row.pack_start(switch, False, False, 5)
         params_box.pack_start(row, False, False, 5)
-        self.app.parameter_entries.append({"name": param_name, "entry": entry, "switch": switch})
+        self.parameter_entries.append({"name": param_name, "entry": entry, "switch": switch})
     
     """ end of first file button """
 
     """2nd button"""
     def choose_model(self, widget):
         """Выбор конкретной .va модели для использования."""
-        if not self.app.simulation_runner:
+        if not self.simulation_runner:
             print("Ошибка: Сначала выберите файл параметров.")
             return
 
-        initial_dir = os.path.dirname(self.app.parsing_file) if self.app.parsing_file else SPICE_EXAMPLES_PATH
+        initial_dir = os.path.dirname(self.parsing_file) if self.parsing_file else SPICE_EXAMPLES_PATH
         
         dialog = Gtk.FileChooserDialog(
             title="Выберите модель (.va)",
-            parent=self.app,
+            parent=self.parent_window,
             action=Gtk.FileChooserAction.OPEN
         )
         dialog.set_current_folder(initial_dir)
@@ -119,7 +120,7 @@ class SimulatorHandlers:
 
         if dialog.run() == Gtk.ResponseType.OK:
             model_file = dialog.get_filename()
-            self.app.simulation_runner.set_model(model_file)
+            self.simulation_runner.set_model(model_file)
             print(f"Модель выбрана: {os.path.basename(model_file)}")
 
         dialog.destroy()
@@ -127,17 +128,17 @@ class SimulatorHandlers:
    
     def apply_changes(self, widget):
         """Применяет изменения к выбранному файлу."""
-        if not self.app.simulation_runner:
+        if not self.simulation_runner:
             print("Ошибка: Модель не выбрана.")
             return
 
         current_parameters = {}
-        for param in self.app.parameter_entries:
+        for param in self.parameter_entries:
             param_name = param["name"]
             param_value = param["entry"].get_text()
             current_parameters[param_name] = param_value
 
-        target_file = self.app.parsing_file
+        target_file = self.parsing_file
 
         try:
             file_manager = FileManager()
@@ -149,7 +150,7 @@ class SimulatorHandlers:
     def choose_spice_file(self, widget):
         """Выбор SPICE-файла."""
         try:
-            parsing_file_path = self.app.parsing_file
+            parsing_file_path = self.parsing_file
             if not parsing_file_path:
                 print("Ошибка: Сначала выберите файл параметров.")
                 return
@@ -159,15 +160,15 @@ class SimulatorHandlers:
 
             dialog = Gtk.FileChooserDialog(
                 title="Выберите SPICE-файл",
-                parent=self.app,
+                parent=self.parent_window,
                 action=Gtk.FileChooserAction.OPEN
             )
             dialog.set_current_folder(initial_dir)  # установка директории для выбора файлов
             dialog.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
 
             if dialog.run() == Gtk.ResponseType.OK:
-                self.app.spice_file = dialog.get_filename()
-                print(f"Spice-схема выбрана: {self.app.spice_file}")
+                self.spice_file = dialog.get_filename()
+                print(f"Spice-схема выбрана: {self.spice_file}")
 
             dialog.destroy()
         except Exception as e:
@@ -184,24 +185,24 @@ class SimulatorHandlers:
     #FIXME: вернуть прогресс бар в работающее состояние уже с программой, отрисовку тоже сделать
     def start_simulation(self, button):
         """Запуск симуляции с реальным прогрессом."""
-        if not self.app.simulation_runner:
+        if not self.simulation_runner:
             print("Ошибка: Сначала выберите файл параметров.")
             return
-        if not self.app.spice_file:
+        if not self.spice_file:
             print("Ошибка: Сначала выберите SPICE-файл.")
             return
 
-        if hasattr(self.app, "fig"):
-            self.app.fig.clear()
-            self.app.canvas_plot.draw()
+        if hasattr(self.parent_window, "fig"):
+            self.ax.clear()
+            self.canvas_plot.draw()
 
         def simulate():
             """Фоновая симуляция с обновлением прогресса."""
             try:
-                for progress in self.app.simulation_runner.run_simulation(
-                    spice_file=self.app.spice_file,
-                    canvas=self.app.canvas_plot,
-                    fig=self.app.fig
+                for progress in self.simulation_runner.run_simulation(
+                    spice_file=self.spice_file,
+                    canvas=self.canvas_plot,
+                    fig=self.fig
                 ):
                     GLib.idle_add(self.__update_progress_bar, progress)
                 print("Симуляция завершена успешно!")
@@ -214,11 +215,28 @@ class SimulatorHandlers:
 
     def __update_progress_bar(self, progress):
         """Обновляет прогресс-бар в главном потоке."""
-        if hasattr(self.app, 'progress_bar'):
-            self.app.progress_bar.set_fraction(progress)
+        if hasattr(self.parent_window, 'progress_bar'):
+            self.progress_bar.set_fraction(progress)
 
 
-    #TODO: это допилю сам
+    def update_simulation_progress(self, progress):
+        """
+        Функция для обновления прогресса симуляции в прогресс-баре.
+        
+        Аргументы:
+        progress (float): число от 0.0 до 1.0, отражающее процент выполнения симуляции.
+        
+        Эту функцию можно вызывать из кода моделирования (например, из отдельного потока).
+        Она использует GLib.idle_add для того, чтобы обновление интерфейса происходило в главном потоке.
+        """
+        # GLib.idle_add гарантирует, что set_fraction будет вызван в главном цикле GTK.
+        GLib.idle_add(self.progress_bar.set_fraction, progress)
+    #В коде с моделированием нужно будет добавить эту функцию
+    #self.update_simulation_progress(текущее_значение_прогресса)
+
+
+
+    #TODO: это Никита
 
     # def on_scroll(self, event):
     #     """Обработчик масштабирования графика."""

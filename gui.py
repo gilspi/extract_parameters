@@ -64,62 +64,43 @@ class ProgressBar(Gtk.DrawingArea):
         cr.move_to(text_x, text_y)  # Перемещение "перо" в позицию текста
         cr.show_text(progress_text)  # Отображение текста
 
-# Основной класс приложения симулятора, наследуется от Gtk.Window
+
 class NGSPICESimulatorApp(Gtk.Window):
     def __init__(self):
-        super().__init__(title="NGSPICE Simulator")  # Установка заголовка окна
-        self.set_default_size(1360, 740)  # Установка размера окна по умолчанию
-        self.set_border_width(10)  # Отступы вокруг содержимого окна
-        # Задание фонового цвета окна
-        self.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0.73, 0.76, 0.79, 1.0))  # #BAC3C9
-
-        # Инициализация переменных для работы с файлами и симуляцией
-        self.parsing_file = "No File Selected"
-        self.simulation_runner = None
-        # self.file_manager = FileManager()  # Комментарий: возможно, управление файлами планируется реализовать позднее
-        self.parameter_entries = []  # Список для хранения виджетов ввода параметров
-        self.spice_file = None  # Путь к SPICE-файлу, выбранному пользователем
+        super().__init__(title="NGSPICE Simulator")
+        self.set_default_size(1360, 740)
+        self.set_border_width(10)
         
-        self.handlers = SimulatorHandlers(self)  # инициализация обработчиков
+        self.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0.73, 0.76, 0.79, 1.0))  #BAC3C9
 
-        # Инициализация области для графиков с использованием matplotlib
-        self.fig, self.ax = plt.subplots()  # Создание фигуры и оси для построения графика
-        self.fig.patch.set_facecolor((0, 0, 0, 0))  # Установка прозрачного фона для фигуры
-        self.ax.patch.set_alpha(0)            # Фон области построения прозрачный
-        self.ax.set_facecolor((0, 0, 0, 0))
+        
+        # self.file_manager = FileManager()  # Комментарий: возможно, управление файлами планируется реализовать позднее
+        
+        self.file_button = Gtk.Button(label="File:/...")  # кнопка для отображения пути файла
+        
+        self.params_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+
+        self.fig, self.ax = plt.subplots()
         self.ax.grid(True, which="both", linestyle="--", linewidth=0.5)  # Добавление сетки на график
         self.fig.set_layout_engine("tight")  # Использование плотного расположения элементов
         self.fig.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)  # Настройка отступов для графика
-        self.canvas_plot = FigureCanvas(self.fig)  # Создание GTK-виджета для отображения графика
-        
-        # Создаем params_box перед вызовом create_left_panel
-        self.params_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+        self.canvas_plot = FigureCanvas(self.fig)
+        self.canvas_plot.set_size_request(-1, -1)  # Пусть подстраивается под размер
 
-        self.apply_styles()  # Стили кнопки для строки файла
+        
+        self.progress_bar = ProgressBar()  # Инициализация кастомного прогресс-бара
+
+        self.handlers = SimulatorHandlers(self.params_box, self.file_button, self.fig, self.ax, self.canvas_plot, self.progress_bar, parent_window=self)  # инициализация обработчиков
+
+        self.apply_styles()  # стили кнопки для строки файла
 
         self.create_interface()  # создание интерфейса
 
         self.__setup_directories()  # Создание необходимых директорий, если они не существуют
 
-        # Настройка прозрачности окна (если поддерживается композитинг)
-        visual = self.get_screen().get_rgba_visual()
+        visual = self.get_screen().get_rgba_visual()  # Настройка прозрачности окна (если поддерживается композитинг)
         if visual and self.get_screen().is_composited():
             self.set_visual(visual)
-
-    def update_simulation_progress(self, progress):
-        """
-        Функция для обновления прогресса симуляции в прогресс-баре.
-        
-        Аргументы:
-        progress (float): число от 0.0 до 1.0, отражающее процент выполнения симуляции.
-        
-        Эту функцию можно вызывать из кода моделирования (например, из отдельного потока).
-        Она использует GLib.idle_add для того, чтобы обновление интерфейса происходило в главном потоке.
-        """
-        # GLib.idle_add гарантирует, что set_fraction будет вызван в главном цикле GTK.
-        GLib.idle_add(self.progress_bar.set_fraction, progress)
-    #В коде с моделированием нужно будет добавить эту функцию
-    #self.update_simulation_progress(текущее_значение_прогресса)
 
     def __setup_directories(self):
         """
@@ -127,77 +108,52 @@ class NGSPICESimulatorApp(Gtk.Window):
         """
         for directory in DIRECTORY:
             if not os.path.exists(directory):
-                os.makedirs(directory)  # Создание директории, если она не существует
+                os.makedirs(directory)
 
     def create_interface(self):
         """Создание интерфейса."""
-        # Основной контейнер с горизонтальной ориентацией для размещения левой и правой панелей
-        container = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
-        self.add(container)  # Добавление контейнера в окно
+        container = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)  # Основной контейнер с горизонтальной ориентацией для размещения левой и правой панелей
+        self.add(container)
 
-        left_panel = self.create_left_panel()  # Создание левой панели (с кнопками, параметрами и файлом)
+        left_panel = self.create_left_panel()
         left_panel.set_hexpand(False)
         container.pack_start(left_panel, False, False, 0)
 
-        right_panel = self.create_right_panel()  # Правая панель (с графиком и прогресс-баром)
+        right_panel = self.create_right_panel()
         right_panel.set_hexpand(True)
         container.pack_start(right_panel, True, True, 0)
 
     def create_left_panel(self):
-        """
-        Создает левую панель с кнопками, параметрами и строкой файла.
-        Возвращает Gtk.Box, содержащий все элементы левой панели.
-        """
-        left_panel = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
-        left_panel.set_size_request(300, -1)  # Фиксированная ширина панели
+        """Создает левую панель с кнопками, параметрами и строкой файла."""
+        left_panel = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10, width_request=300)
 
-        # Кнопка для отображения пути файла
-        self.file_button = Gtk.Button(label="File:/...")  # кнопка для отображения пути файла
         self.file_button.set_hexpand(True)
-        self.file_button.set_size_request(300, 30)
-        self.file_button.set_halign(Gtk.Align.FILL)  # Растягиваем на всю ширину
-        self.file_button.get_style_context().add_class("file-display-button")  # Для кастомного стиля
+        self.file_button.set_halign(Gtk.Align.FILL)
+        self.file_button.get_style_context().add_class("file-display-button")
         self.file_button.connect("clicked", self.handlers.choose_parsing_file)
         left_panel.pack_start(self.file_button, False, False, 0)
 
-        # Блок кнопок с общим фоном
-        button_frame = Gtk.Frame()  # блок кнопок с общим фоном
-        button_frame.set_shadow_type(Gtk.ShadowType.NONE)  # убираем рамку, оставляем только фон
-        button_frame.get_style_context().add_class("rounded-block")
-        button_frame.set_hexpand(True)
+        button_grid = Gtk.Grid(column_spacing=5, row_spacing=5)
+        for margin in ("top", "bottom", "start", "end"):
+            getattr(button_grid, f"set_margin_{margin}")(5)
 
-        # Создание сетки для размещения кнопок в два столбца
-        button_grid = Gtk.Grid()
-        button_grid.set_column_spacing(5)
-        button_grid.set_row_spacing(5)
-        button_grid.set_margin_top(5)  # Внутренние отступы
-        button_grid.set_margin_bottom(5)
-        button_grid.set_margin_start(5)
-        button_grid.set_margin_end(5)
-        button_grid.set_hexpand(True)  # Растягиваем сетку по ширине
-
-        # Определение меток кнопок и соответствующих обработчиков
-        button_labels = ["Выбрать модель", "Применить изменения", "Выбрать SPICE-файл", "Запустить симуляцию"]
-        button_callbacks = [
-            self.handlers.choose_model,
-            self.handlers.apply_changes,
-            self.handlers.choose_spice_file,
-            self.handlers.start_simulation
+        buttons = [
+            ("Выбрать модель", self.handlers.choose_model),
+            ("Применить изменения", self.handlers.apply_changes),
+            ("Выбрать SPICE-файл", self.handlers.choose_spice_file),
+            ("Запустить симуляцию", self.handlers.start_simulation)
         ]
-        # Создание и размещение кнопок в сетке
-        for i, (label, callback) in enumerate(zip(button_labels, button_callbacks)):
+        for idx, (label, callback) in enumerate(buttons):
             button = Gtk.Button(label=label)
             button.connect("clicked", callback)
-            button.set_hexpand(True)  # Растягиваем кнопки по ширине
-            button.get_style_context().add_class("button")  # Для кастомного стиля
-            button_grid.attach(button, i % 2, i // 2, 1, 1)
-        button_frame.add(button_grid)
-        left_panel.pack_start(button_frame, False, False, 0)
+            button.set_hexpand(True)
+            button.get_style_context().add_class("button")
+            button_grid.attach(button, idx % 2, idx // 2, 1, 1)
 
-        # Секция параметров с возможностью прокрутки
+        left_panel.pack_start(button_grid, False, False, 0)
+
         params_scroller = Gtk.ScrolledWindow()
         params_scroller.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        self.params_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
         params_scroller.add(self.params_box)
         left_panel.pack_start(params_scroller, True, True, 0)
 
@@ -205,77 +161,51 @@ class NGSPICESimulatorApp(Gtk.Window):
 
     def create_right_panel(self):
         """Создает правую панель с графиком и прогресс-баром."""
-        right_panel = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
-        right_panel.set_hexpand(True)
+        right_panel = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0, hexpand=True)
 
-        # Инициализация кастомного прогресс-бара
-        self.progress_bar = ProgressBar()
+        # Прогресс-бар
         self.progress_bar.set_size_request(200, 30)
-        self.progress_bar.progress_fraction = 0.0  # начальное значение
+        self.progress_bar.progress_fraction = 0.0
 
-        # Создаем контейнер для canvas_plot и задаем ему CSS-класс
-        canvas_container = Gtk.Frame()
-        canvas_container.set_shadow_type(Gtk.ShadowType.NONE)
+        # График (canvas_plot) в контейнере
+        canvas_container = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
+        canvas_container.get_style_context().add_class("transparent-container")
         canvas_container.add(self.canvas_plot)
-        canvas_container.get_style_context().add_class("canvas-container")
 
-        # Контейнер для размещения прогресс-бара и области графика
         graph_container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
         graph_container.pack_start(self.progress_bar, False, False, 0)
         graph_container.get_style_context().add_class("no-shadow-box")
-        # Последний параметр в pack_start — это padding (в пикселях), увеличиваем его
         graph_container.pack_start(canvas_container, True, True, 10)
 
-        # Настройка растяжения для контейнеров и canvas_plot
-        canvas_container.set_hexpand(True)
-        canvas_container.set_vexpand(True)
-        self.canvas_plot.set_hexpand(True)
-        self.canvas_plot.set_vexpand(True)
-        right_panel.pack_start(graph_container, True, True, 0)
-
-       # Создаём control_box с нужными отступами, выравниванием и фиксированной высотой
-        control_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
-        control_box.set_margin_top(0)
-        control_box.set_margin_bottom(5)
-        control_box.set_margin_start(0)
-        control_box.set_margin_end(0)
-        control_box.set_size_request(200, 50)  # Фиксированная высота 50 пикселей
-        control_box.set_valign(Gtk.Align.CENTER)
+        # Control Box с элементами управления
+        control_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5, valign=Gtk.Align.CENTER)
+        control_box.set_size_request(200, 50)
         control_box.get_style_context().add_class("control-box")
 
-        # Создаем элементы управления
-        logscale_label = Gtk.Label(label="Log Scale:")
-        logscale_label.set_xalign(0)
-        logscale_label.set_valign(Gtk.Align.CENTER)
+        # Устанавливаем одинаковые отступы
+        for margin in ("top", "bottom", "start", "end"):
+            getattr(control_box, f"set_margin_{margin}")(5)
 
-        logscale_switch = IosStyleSwitch()
-        logscale_switch.set_size_request(50, 25)
-        logscale_switch.set_valign(Gtk.Align.CENTER)
+        # Создаём элементы управления (Log Scale, Grid, Reset)
+        controls = [
+            ("Log Scale:", IosStyleSwitch()),
+            ("Grid:", IosStyleSwitch()),
+            ("", Gtk.Button(label="Reset Scale"))
+        ]
 
-        grid_label = Gtk.Label(label="Grid:")
-        grid_label.set_xalign(0)
-        grid_label.set_valign(Gtk.Align.CENTER)
+        for label_text, widget in controls:
+            if label_text:
+                label = Gtk.Label(label=label_text, xalign=0, valign=Gtk.Align.CENTER)
+                control_box.pack_start(label, False, False, 5)
+            widget.set_size_request(50, 25) if isinstance(widget, IosStyleSwitch) else widget.get_style_context().add_class("control-button")
+            control_box.pack_start(widget, False, False, 5)
 
-        grid_switch = IosStyleSwitch()
-        grid_switch.set_size_request(50, 25)
-        grid_switch.set_valign(Gtk.Align.CENTER)
-
-        reset_button = Gtk.Button(label="Reset Scale")
-        reset_button.get_style_context().add_class("control-button")
-        reset_button.set_valign(Gtk.Align.CENTER)
-
-        # Упаковываем виджеты в control_box
-        control_box.pack_start(logscale_label, False, False, padding=5)
-        control_box.pack_start(logscale_switch, False, False, padding=5)
-        control_box.pack_start(grid_label, False, False, padding=5)
-        control_box.pack_start(grid_switch, False, False, padding=5)
-        control_box.pack_end(reset_button, False, False, padding=5)
-
-        # Добавляем graph_container и control_box в right_panel.
+        # Собираем всё в `right_panel`
         right_panel.pack_start(graph_container, True, True, 0)
         right_panel.pack_end(control_box, False, False, 10)
 
         return right_panel
+
 
     def apply_styles(self):
         """

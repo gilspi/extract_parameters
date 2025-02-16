@@ -163,3 +163,20 @@ def add_or_update_simulation_data_path_in_file(scheme_file_path, simulation_data
 
     except Exception as e:
         print(f"Ошибка при добавлении или обновлении строки в файл: {e}")
+
+
+def shorten_file_path(full_path, max_length=40):
+    """
+    Если длина пути больше max_length, возвращает строку вида:
+    начало пути + "..." + имя файла
+    """
+    if len(full_path) <= max_length:
+        return full_path
+    filename = os.path.basename(full_path)
+    # Вычитаем длину файла и троеточия
+    remaining = max_length - len(filename) - 3
+    if remaining < 1:
+        # Если места совсем мало, возвращаем только имя файла с троеточием спереди
+        return "..." + filename[-(max_length-3):]
+    shortened = full_path[:remaining] + "..." + filename
+    return shortened
