@@ -21,7 +21,7 @@ plot -i(vd)
 settype temperature v(dt)
 plot v(dt)
 print v(dt) > /home/gilspi/Desktop/progs/extract_parameters/data/raw/simulation_data.txt
-*print [add-pointers from plot and do other print like that] > /home/gilspi/Desktop/progs/extract_parameters/data/raw/simulation_data.txt
+*print [add-pointers from plot and do other print like that] > /home/gilspi/Desktop/extract_parameters/data/raw/simulation_data.txt
 .endc
 
 .end

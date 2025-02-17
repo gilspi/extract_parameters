@@ -1,20 +1,18 @@
-import os  # Модуль для работы с файловой системой
+import os
 
-import gi  # PyGObject для работы с библиотекой GTK
+import gi
 gi.require_version("Gtk", "3.0")  # Требуемая версия GTK
-from gi.repository import Gtk, Gdk, GLib  # Импорт необходимых компонентов GTK и вспомогательных библиотек
-from config import COLORS, DIRECTORY  # Импорт цветовой схемы и списка директорий из конфигурационного файла
-from graphics.handlers import SimulatorHandlers  # Импорт обработчиков событий для симулятора
+from gi.repository import Gtk, Gdk
+from config import DIRECTORY
+from graphics.handlers import SimulatorHandlers
 from ios_switch import IosStyleSwitch
 
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_gtk3agg import FigureCanvasGTK3Agg as FigureCanvas
 
-import matplotlib.pyplot as plt  # Библиотека для построения графиков
-from datetime import datetime  # Для работы с датой и временем
-from matplotlib.backends.backend_gtk3agg import FigureCanvasGTK3Agg as FigureCanvas  # Интеграция matplotlib с GTK
-from config import DIRECTORY  # Импорт списка директорий из конфигурационного файла (дублируется, возможно, для удобства)
 
-# Класс кастомного прогресс-бара, наследуется от Gtk.DrawingArea для возможности рисования
 class ProgressBar(Gtk.DrawingArea):
+    """Класс кастомного прогресс-бара, наследуется от Gtk.DrawingArea для возможности рисования"""
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.progress_fraction = 0.0  # Инициализация прогресса (от 0 до 1)
@@ -85,20 +83,19 @@ class NGSPICESimulatorApp(Gtk.Window):
         self.fig.set_layout_engine("tight")  # Использование плотного расположения элементов
         self.fig.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)  # Настройка отступов для графика
         self.canvas_plot = FigureCanvas(self.fig)
-        self.canvas_plot.set_size_request(-1, -1)  # Пусть подстраивается под размер
+        self.canvas_plot.set_size_request(-1, -1)
 
         
-        self.progress_bar = ProgressBar()  # Инициализация кастомного прогресс-бара
-
+        self.progress_bar = ProgressBar()
         self.handlers = SimulatorHandlers(self.params_box, self.file_button, self.fig, self.ax, self.canvas_plot, self.progress_bar, parent_window=self)  # инициализация обработчиков
 
         self.apply_styles()  # стили кнопки для строки файла
 
         self.create_interface()  # создание интерфейса
 
-        self.__setup_directories()  # Создание необходимых директорий, если они не существуют
+        self.__setup_directories()  # создание необходимых директорий, если они не существуют
 
-        visual = self.get_screen().get_rgba_visual()  # Настройка прозрачности окна (если поддерживается композитинг)
+        visual = self.get_screen().get_rgba_visual()
         if visual and self.get_screen().is_composited():
             self.set_visual(visual)
 
@@ -112,7 +109,7 @@ class NGSPICESimulatorApp(Gtk.Window):
 
     def create_interface(self):
         """Создание интерфейса."""
-        container = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)  # Основной контейнер с горизонтальной ориентацией для размещения левой и правой панелей
+        container = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)  # основной контейнер с горизонтальной ориентацией для размещения левой и правой панелей
         self.add(container)
 
         left_panel = self.create_left_panel()
@@ -163,11 +160,9 @@ class NGSPICESimulatorApp(Gtk.Window):
         """Создает правую панель с графиком и прогресс-баром."""
         right_panel = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0, hexpand=True)
 
-        # Прогресс-бар
         self.progress_bar.set_size_request(200, 30)
         self.progress_bar.progress_fraction = 0.0
 
-        # График (canvas_plot) в контейнере
         canvas_container = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
         canvas_container.get_style_context().add_class("transparent-container")
         canvas_container.add(self.canvas_plot)
@@ -177,21 +172,18 @@ class NGSPICESimulatorApp(Gtk.Window):
         graph_container.get_style_context().add_class("no-shadow-box")
         graph_container.pack_start(canvas_container, True, True, 10)
 
-        # Control Box с элементами управления
-        control_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5, valign=Gtk.Align.CENTER)
+        control_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5, valign=Gtk.Align.CENTER) # Control Box с элементами управления
         control_box.set_size_request(200, 50)
         control_box.get_style_context().add_class("control-box")
 
-        # Устанавливаем одинаковые отступы
-        for margin in ("top", "bottom", "start", "end"):
+        for margin in ("top", "bottom", "start", "end"):  # устанавливаем одинаковые отступы
             getattr(control_box, f"set_margin_{margin}")(5)
 
-        # Создаём элементы управления (Log Scale, Grid, Reset)
         controls = [
             ("Log Scale:", IosStyleSwitch()),
             ("Grid:", IosStyleSwitch()),
             ("", Gtk.Button(label="Reset Scale"))
-        ]
+        ]  # создаём элементы управления (Log Scale, Grid, Reset)
 
         for label_text, widget in controls:
             if label_text:
