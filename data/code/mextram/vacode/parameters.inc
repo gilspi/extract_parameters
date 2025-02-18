@@ -36,7 +36,7 @@ aliasparam dtemp = dta;
 `MPRco( nbis           ,1.0            ,""            ,0.1         ,inf          ,"Non-ideality factor of ideal side wall base current" )
 `MPRcz( ibf            ,2.7f           ,"A"                                      ,"Saturation current of non-ideal forward base current" )
 `MPRco( mlf            ,2.0            ,""            ,0.1         ,inf          ,"Non-ideality factor of non-ideal forward base current" )
-`MPRcz( ibfs           ,0.0            ,"A"                                      ,"Saturation current of non-ideal side wall forward base current" )
+`MPRcz( ibfs           ,we            ,"A"                                      ,"Saturation current of non-ideal side wall forward base current" )
 `MPRco( mlfs           ,2.0            ,""            ,0.1         ,inf          ,"Non-ideality factor of non-ideal side wall forward base current" )
 // forward base current with swib1 = 1
 `MPIcc( swib1          ,0              ,""            ,0           ,1            ,"Switch of Ib1 and Ib1s model" )

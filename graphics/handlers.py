@@ -93,6 +93,8 @@ class SimulatorHandlers:
         entry.set_size_request(100, -1)
         switch = IosStyleSwitch(size=(50, 25))  # размеры переключателя
         switch.set_valign(Gtk.Align.CENTER)
+        # Привязываем к свитчу параметр, чтобы потом можно было его идентифицировать
+        switch.set_data("param_name", param_name)
         row.pack_start(label, False, False, 5)
         row.pack_start(entry, True, True, 5)
         row.pack_start(switch, False, False, 5)
@@ -122,8 +124,10 @@ class SimulatorHandlers:
             model_file = dialog.get_filename()
             self.simulation_runner.set_model(model_file)
             print(f"Модель выбрана: {os.path.basename(model_file)}")
+            dialog.destroy()
+            self.__show_message_dialog("Уведомление", "Модель выбрана: {os.path.basename(model_file)}", Gtk.MessageType.INFO)
 
-        dialog.destroy()
+
     """end 2nd button"""
    
     def apply_changes(self, widget):
@@ -143,7 +147,7 @@ class SimulatorHandlers:
         try:
             file_manager = FileManager()
             file_manager.apply_changes_to_file(current_parameters, target_file)
-            print(f"Изменения успешно применены в {target_file}.")
+            self.__show_message_dialog("Уведомление", "Изменения успешно применены в {target_file}.", Gtk.MessageType.INFO)
         except Exception as e:
             self.__show_message_dialog("Ошибка", "Не удалось применить изменения.", Gtk.MessageType.ERROR)
             return
@@ -170,19 +174,15 @@ class SimulatorHandlers:
             if dialog.run() == Gtk.ResponseType.OK:
                 self.spice_file = dialog.get_filename()
                 print(f"Spice-схема выбрана: {self.spice_file}")
-
-            dialog.destroy()
+                dialog.destroy()
+                self.__show_message_dialog("Уведомление", "Spice-схема выбрана {self.spice_file}", Gtk.MessageType.INFO)
         except Exception as e:
-            print(f"Ошибка при выборе SPICE-файла: {e}")
-
-
-
-
-
+            self.__show_message_dialog("Ошибка", f"Ошибка при загрузке параметров: {e}", Gtk.MessageType.ERROR)
+            return
     
     def start_simulation(self, button):  #TODO: Артем добавить чтобы точки бежали пока выполняется симуляция
         """Запуск симуляции с обновлением прогресса и обработкой ошибок."""
-        if not self.simulation_runner:
+        if not self.parent_window.simulation_runner:
             self.__show_message_dialog("Ошибка", "Сначала выберите файл параметров.", Gtk.MessageType.ERROR)
             return
         if not self.spice_file:
@@ -219,6 +219,17 @@ class SimulatorHandlers:
         dialog.run()
         dialog.destroy()
 
+    def __show_message_dialog(self, title, message, message_type):
+        dialog = Gtk.MessageDialog(
+            parent=self.parent_window,  # вместо self.app
+            flags=Gtk.DialogFlags.MODAL,
+            type=message_type,
+            buttons=Gtk.ButtonsType.OK,
+            message_format=message
+        )
+        dialog.set_title(title)
+        dialog.run()
+        dialog.destroy()
 
     def __update_progress_bar(self, progress):
         """Обновляет прогресс-бар в главном потоке."""
@@ -260,3 +271,20 @@ class SimulatorHandlers:
         # else:
         #     label.set_text("̶" + label.get_text())
         #     entry.set_sensitive(False)
+    def toggle_log_scale(self, switch, state):
+        if state:
+            self.ax.set_yscale('log')
+        else:
+            self.ax.set_yscale('linear')
+        self.canvas_plot.draw()
+        return True  # Необходимый возврат для обработки события
+
+    def toggle_grid(self, switch, state):
+        if state:
+            # Включаем сетку с заданными параметрами
+            self.ax.grid(True, which="both", linestyle="--", linewidth=0.5)
+        else:
+            # Выключаем сетку
+            self.ax.grid(False)
+        self.canvas_plot.draw()  # Обновляем отрисовку графика
+        return True  
