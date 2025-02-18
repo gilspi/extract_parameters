@@ -94,7 +94,7 @@ class SimulatorHandlers:
         switch = IosStyleSwitch(size=(50, 25))  # размеры переключателя
         switch.set_valign(Gtk.Align.CENTER)
         # Привязываем к свитчу параметр, чтобы потом можно было его идентифицировать
-        switch.set_data("param_name", param_name)
+        # switch.set_data("param_name", param_name)  #FIXME: из-за этой строки не работает парсинг
         row.pack_start(label, False, False, 5)
         row.pack_start(entry, True, True, 5)
         row.pack_start(switch, False, False, 5)
@@ -125,7 +125,7 @@ class SimulatorHandlers:
             self.simulation_runner.set_model(model_file)
             print(f"Модель выбрана: {os.path.basename(model_file)}")
             dialog.destroy()
-            self.__show_message_dialog("Уведомление", "Модель выбрана: {os.path.basename(model_file)}", Gtk.MessageType.INFO)
+            self.__show_message_dialog("Уведомление", f"Модель выбрана: {os.path.basename(model_file)}", Gtk.MessageType.INFO)
 
 
     """end 2nd button"""
@@ -147,7 +147,7 @@ class SimulatorHandlers:
         try:
             file_manager = FileManager()
             file_manager.apply_changes_to_file(current_parameters, target_file)
-            self.__show_message_dialog("Уведомление", "Изменения успешно применены в {target_file}.", Gtk.MessageType.INFO)
+            self.__show_message_dialog("Уведомление", f"Изменения успешно применены в {target_file}.", Gtk.MessageType.INFO)
         except Exception as e:
             self.__show_message_dialog("Ошибка", "Не удалось применить изменения.", Gtk.MessageType.ERROR)
             return
@@ -175,7 +175,7 @@ class SimulatorHandlers:
                 self.spice_file = dialog.get_filename()
                 print(f"Spice-схема выбрана: {self.spice_file}")
                 dialog.destroy()
-                self.__show_message_dialog("Уведомление", "Spice-схема выбрана {self.spice_file}", Gtk.MessageType.INFO)
+                self.__show_message_dialog("Уведомление", f"Spice-схема выбрана {self.spice_file}", Gtk.MessageType.INFO)
         except Exception as e:
             self.__show_message_dialog("Ошибка", f"Ошибка при загрузке параметров: {e}", Gtk.MessageType.ERROR)
             return
@@ -184,10 +184,9 @@ class SimulatorHandlers:
         """Запуск симуляции с обновлением прогресса и обработкой ошибок."""
         if not self.parent_window.simulation_runner:
             self.__show_message_dialog("Ошибка", "Сначала выберите файл параметров.", Gtk.MessageType.ERROR)
-            return
+            
         if not self.spice_file:
             self.__show_message_dialog("Ошибка", "Сначала выберите SPICE-файл.", Gtk.MessageType.ERROR)
-            return
 
         def simulate():
             try:
