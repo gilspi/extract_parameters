@@ -1,4 +1,7 @@
 import os
+
+from pathlib import Path
+
 from datetime import datetime
 import time
 import tkinter as tk
@@ -47,8 +50,7 @@ class NGSPICESimulatorApp:
 
     def __setup_directroies(self):
         for directory in DIRECTORY:
-            if not os.path.exists(directory):
-                os.makedirs(directory)
+            Path(directory).mkdir(parents=True, exist_ok=True)
 
     # def reset_plot_scale(self):
     #     """Сброс масштаба графика на исходное значение."""
