@@ -182,7 +182,7 @@ class SimulatorHandlers:
     
     def start_simulation(self, button):  #TODO: Артем добавить чтобы точки бежали пока выполняется симуляция
         """Запуск симуляции с обновлением прогресса и обработкой ошибок."""
-        if not self.parent_window.simulation_runner:
+        if not self.simulation_runner:
             self.__show_message_dialog("Ошибка", "Сначала выберите файл параметров.", Gtk.MessageType.ERROR)
             
         if not self.spice_file:
@@ -264,6 +264,7 @@ class SimulatorHandlers:
         print(f"Parameter toggled. New state: {'Enabled' if state else 'Disabled'}")
 
         #TODO: над этим вообще не работал и не смотрел, просто оставил как есть, пока что
+        #сама функция задумывалась именно дляя изменения параметров в списке. В ios_swtich есть функция on_toggle, отвечающая за визуал и анимацию переключения, так что можешь это использовать
         # if state:
         #     label.set_text(label.get_text().replace("̶", ""))
         #     entry.set_sensitive(True)

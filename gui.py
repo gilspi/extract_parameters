@@ -154,7 +154,7 @@ class NGSPICESimulatorApp(Gtk.Window):
         self.fig.set_layout_engine("tight")  # Использование плотного расположения элементов
         self.fig.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)  # Настройка отступов для графика
         self.canvas_plot = FigureCanvas(self.fig)
-        self.canvas_plot.facecolor='#f7f7f7'
+        #self.canvas_plot.facecolor='#f7f7f7'
         self.canvas_plot.set_size_request(-1, -1)
 
         

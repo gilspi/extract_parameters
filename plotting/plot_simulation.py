@@ -77,11 +77,11 @@ class SimulationManager:
             if fig is None:
                 raise ValueError("Параметр 'fig' не должен быть None")
 
-            ax = fig.add_subplot(111)  # TODO: Артем нужно убрать дополнительное полотно для графика оно избыточно
+            ax = fig.add_subplot(111)
 
-            self.data_plotter.plot(reference_data, ax, label="Эталонный график", color="blue", linestyle="--", facecolor='0,0,0,0')
+            self.data_plotter.plot(reference_data, ax, label="Эталонный график", color="blue", linestyle="--")
 
-            self.data_plotter.plot(user_data, ax, label="Пользовательский график", color="red", linestyle="-", facecolor='0,0,0,0')
+            self.data_plotter.plot(user_data, ax, label="Пользовательский график", color="red", linestyle="-")
 
             # ax.set_xlabel("Напряжение (V)")
             # ax.set_ylabel("Ток (A)")
