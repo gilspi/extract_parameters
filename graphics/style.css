@@ -1,0 +1,45 @@
+/* Стили для лейблов заголовков графика */
+label.graph-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    background: none;
+}
+
+/* Стили для прогресс-бара: фон и текст можно задать для DrawingArea через css-подобное оформление,
+   но, как правило, рисование происходит программно. Если нужно задать фон контейнера прогресс-бара,
+   можно использовать специальный контейнер */
+.progress-container {
+    background-color: rgba(217, 217, 217, 1);
+    border-radius: 10px;
+    padding: 5px;
+}
+button, frame, .canvas-container, .progress-container {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+.control-box {
+    background-color: rgba(217, 217, 217, 0);
+    border-radius: 10px;
+    padding: 5px;
+    font-size: 16px;
+    min-height: 40px;
+    /*box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);*/
+}
+/* iOS‑стиль для кнопок */
+button.ios-button {
+    background: #f7f7f7;
+    border: 1px solid #ccc;
+    border-radius: 30pt ;
+    color: #000000;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    padding: 10px 15px;
+    transition: background 0.2s, box-shadow 0.2s;
+}
+button.ios-button:hover {
+    background: #eaeaea;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+button.ios-button:active {
+    background: #dcdcdc;
+}

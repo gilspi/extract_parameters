@@ -1,0 +1,132 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: myapp 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-02-22 12:00+0000\n"
+"PO-Revision-Date: 2025-02-22 12:00+0000\n"
+"Last-Translator: Your Name <your.email@example.com>\n"
+"Language-Team: English\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: GUI - Application Window
+msgid "NGSPICE Simulator"
+msgstr "NGSPICE Simulator"
+
+#: GUI - File Button
+msgid "File:/..."
+msgstr "File:/..."
+
+#: GUI - Left panel buttons (abbreviated)
+msgid "Применить изменения"
+msgstr "Apply Changes"
+
+msgid "Запустить симуляцию"
+msgstr "Start Simulation"
+
+#: GUI - Switch labels (abbreviated)
+msgid "Log Scale:"
+msgstr "Log:"
+
+msgid "Grid:"
+msgstr "Grid:"
+
+#: GUI - Right panel buttons (abbreviated)
+msgid "Reset Scale"
+msgstr "Reset Scale"
+
+msgid "Save Graph"
+msgstr "Save Graph"
+
+msgid "Save CSV"
+msgstr "Save CSV"
+
+#: Handlers – all other strings (full translations)
+msgid "No File Selected"
+msgstr "No File Selected"
+
+msgid "Выберите файл параметров"
+msgstr "Select parameter file"
+
+msgid "Выберите модель (.va)"
+msgstr "Select model (.va)"
+
+msgid "Ошибка"
+msgstr "Error"
+
+msgid "Неверная конфигурация."
+msgstr "Invalid configuration."
+
+msgid "Выбрана конфигурация:"
+msgstr "Configuration selected:"
+
+msgid "Путь к файлу параметров:"
+msgstr "Parameter file path:"
+
+msgid "Путь к модели:"
+msgstr "Model path:"
+
+msgid "Путь к spice-схеме:"
+msgstr "Spice scheme path:"
+
+msgid "Parsing file selected:"
+msgstr "Parsing file selected:"
+
+msgid "Модель выбрана:"
+msgstr "Model selected:"
+
+msgid "Спice-схема выбрана:"
+msgstr "Spice scheme selected:"
+
+msgid "Уведомление"
+msgstr "Notice"
+
+msgid "Ошибка при загрузке параметров."
+msgstr "Error loading parameters."
+
+msgid "Модель не выбрана."
+msgstr "Model not selected."
+
+msgid "Изменения успешно применены в "
+msgstr "Changes applied in "
+
+msgid "Не удалось применить изменения."
+msgstr "Failed to apply changes."
+
+msgid "Сначала выберите файл параметров."
+msgstr "Select parameter file first."
+
+msgid "Сначала выберите SPICE-файл."
+msgstr "Select SPICE file first."
+
+msgid "Предупреждение"
+msgstr "Warning"
+
+msgid "Ошибка симуляции: %s"
+msgstr "Simulation error: %s"
+
+msgid "Сохранение CSV"
+msgstr "Save CSV"
+
+msgid "Симуляция не была выполнена, нет данных для сохранения."
+msgstr "Simulation not run, no data to save."
+
+msgid "Ошибка сохранения CSV:"
+msgstr "CSV save error:"
+
+msgid "Warning: No data on graph, switching scale but no effect on plot."
+msgstr "Warning: No graph data, scale switched without effect."
+
+msgid "Warning: No valid Y data for log scale!"
+msgstr "Warning: No valid Y data for log scale!"
+
+msgid "Parameter toggled. New state:"
+msgstr "Parameter toggled. New state:"
+
+msgid "Enabled"
+msgstr "Enabled"
+
+msgid "Disabled"
+msgstr "Disabled"

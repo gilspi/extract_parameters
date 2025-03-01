@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>482</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">/* Общие настройки для виджетов */
+QWidget {
+    background-color: #f0f0f0; /* Светлый фон */
+    color: #333333; /* Темный текст */
+    font-family: Arial, sans-serif; /* Шрифт */
+    font-size: 14px; /* Размер шрифта */
+}
+
+/* Кнопки */
+QPushButton {
+    background-color: #007acc; /* Синий цвет кнопок */
+    color: white; /* Белый текст */
+    border: none; /* Без рамки */
+    border-radius: 5px; /* Закругленные углы */
+    font-size: 14px; /* Размер шрифта кнопки */
+}
+
+QPushButton:hover {
+    background-color: #005f99; /* Более темный синий при наведении */
+}
+
+QPushButton:pressed {
+    background-color: #004080; /* Темный синий при нажатии */
+}
+
+/* Поля ввода текста */
+QLineEdit, QTextEdit {
+    background-color: #ffffff; /* Белое поле ввода */
+    color: #333333; /* Темный текст */
+    border: 1px solid #cccccc; /* Светло-серый бордер */
+    border-radius: 5px; /* Закругленные углы */
+    padding: 8px; /* Отступы внутри поля */
+}
+
+QLineEdit:hover, QTextEdit:hover {
+    border: 1px solid #007acc; /* Синий бордер при наведении */
+}
+
+/* Выпадающие списки и комбобоксы */
+QComboBox {
+    background-color: #ffffff;
+    color: #333333;
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+    padding: 8px;
+}
+
+QComboBox::drop-down {
+    border-left-width: 0px;
+}
+
+QComboBox::down-arrow {
+    image: url(:/images/down-arrow.png); /* Укажите путь к изображению стрелки вниз */
+}
+
+/* Вкладки */
+QTabWidget::pane { 
+   border-top: 2px solid #007acc; 
+}
+
+QTabBar::tab { 
+   background-color: #f0f0f0; 
+   padding: 10px; 
+   margin-right: 2px;
+   border-top-left-radius: 5px; 
+   border-top-right-radius: 5px;
+}
+
+QTabBar::tab:selected { 
+   background-color: #007acc; 
+   color: white;
+}
+
+/* Фреймы для графиков и слайдов */
+QFrame {
+    background-color: white; /* Белый фон фрейма */
+    border: 1px solid #cccccc; /* Светло-серый бордер */
+    border-radius: 5px; /* Закругленные углы фрейма */
+    padding: 10px; /* Отступы внутри фрейма */
+}
+
+/* Графики (например, если вы используете QGraphicsView) */
+QGraphicsView {
+    background-color: #ffffff; /* Белый фон графика */
+    border: none; /* Без рамки вокруг графика */
+}
+
+/* Слайды (например, если вы используете QLabel для отображения изображений) */
+QLabel {
+    border-radius: 5px; /* Закругленные углы для слайдов */
+}</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QPushButton" name="choose_file_btn">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>6</y>
+      <width>88</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Choose file</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="log_scale_checkbox">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>10</y>
+      <width>92</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Log scale</string>
+    </property>
+   </widget>
+   <widget class="QFrame" name="graphics_frame">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>50</y>
+      <width>451</width>
+      <height>381</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QGraphicsView" name="graphics_view">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>10</y>
+       <width>411</width>
+       <height>341</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QSlider" name="x_slider">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>350</y>
+       <width>411</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+    <widget class="QSlider" name="y_slider">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>9</y>
+       <width>20</width>
+       <height>341</height>
+      </rect>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QScrollArea" name="scroll_params_area">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>50</y>
+      <width>281</width>
+      <height>211</height>
+     </rect>
+    </property>
+    <property name="widgetResizable">
+     <bool>true</bool>
+    </property>
+    <widget class="QWidget" name="scroll_area_widget_contents">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>259</width>
+       <height>189</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QLabel" name="file_name_label">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>181</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">/* Общие настройки для виджетов */
+QWidget {
+    background-color: #f0f0f0; /* Светлый фон */
+    color: #333333; /* Темный текст */
+    font-family: Arial, sans-serif; /* Шрифт */
+    font-size: 14px; /* Размер шрифта */
+}
+
+/* Кнопки */
+QPushButton {
+    background-color: #007acc; /* Синий цвет кнопок */
+    color: white; /* Белый текст */
+    border: none; /* Без рамки */
+    border-radius: 5px; /* Закругленные углы */
+    padding: 10px 15px; /* Отступы */
+    font-size: 16px; /* Размер шрифта кнопки */
+}
+
+QPushButton:hover {
+    background-color: #005f99; /* Более темный синий при наведении */
+}
+
+QPushButton:pressed {
+    background-color: #004080; /* Темный синий при нажатии */
+}
+
+/* Поля ввода текста */
+QLineEdit, QTextEdit {
+    background-color: #ffffff; /* Белое поле ввода */
+    color: #333333; /* Темный текст */
+    border: 1px solid #cccccc; /* Светло-серый бордер */
+    border-radius: 5px; /* Закругленные углы */
+    padding: 8px; /* Отступы внутри поля */
+}
+
+QLineEdit:hover, QTextEdit:hover {
+    border: 1px solid #007acc; /* Синий бордер при наведении */
+}
+
+/* Выпадающие списки и комбобоксы */
+QComboBox {
+    background-color: #ffffff;
+    color: #333333;
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+    padding: 8px;
+}
+
+QComboBox::drop-down {
+    border-left-width: 0px;
+}
+
+QComboBox::down-arrow {
+    image: url(:/images/down-arrow.png); /* Укажите путь к изображению стрелки вниз */
+}
+
+/* Вкладки */
+QTabWidget::pane { 
+   border-top: 2px solid #007acc; 
+}
+
+QTabBar::tab { 
+   background-color: #f0f0f0; 
+   padding: 10px; 
+   margin-right: 2px;
+   border-top-left-radius: 5px; 
+   border-top-right-radius: 5px;
+}
+
+QTabBar::tab:selected { 
+   background-color: #007acc; 
+   color: white;
+}
+
+/* Строки таблицы */
+QTableWidget {
+    gridline-color: #cccccc; /* Цвет линий сетки таблицы */
+}
+
+QTableWidget::item {
+    padding: 10px; /* Отступы внутри ячеек таблицы */
+}
+
+/* Строки таблицы при наведении */
+QTableWidget::item:hover {
+    background-color: #e0e0e0; /* Цвет фона при наведении на строку таблицы */
+}</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="choose_model_btn">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>270</y>
+      <width>281</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Choose model</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="accept_changes_btn">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>300</y>
+      <width>281</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Accept changes</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="choose_spice_schema_btn">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>330</y>
+      <width>281</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Choose spice schema</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="start_simulation_btn">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>360</y>
+      <width>281</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Start simulation</string>
+    </property>
+   </widget>
+   <widget class="QProgressBar" name="progressBar">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>390</y>
+      <width>281</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="value">
+     <number>24</number>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>440</y>
+      <width>66</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuOpen">
+    <property name="title">
+     <string>Open</string>
+    </property>
+    <addaction name="action_parameters_model"/>
+    <addaction name="action_spice_schema"/>
+   </widget>
+   <addaction name="menuOpen"/>
+  </widget>
+  <action name="action_parameters_model">
+   <property name="text">
+    <string>Parameters_model</string>
+   </property>
+  </action>
+  <action name="action_spice_schema">
+   <property name="text">
+    <string>SPICE schema</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
