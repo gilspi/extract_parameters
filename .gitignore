@@ -23,11 +23,10 @@ __pycache__/
 # ==============================
 
 # Ignore all openvaf-related files in code/
-data/code/**/openvaf*
-data/code/**/openvaf.exe
+data/**/openvaf*
+data/**/openvaf.exe
 
 # Ignore changes in examples/, except for .sp files
-data/examples/
 data/osdilibs/**.osdi
 
 # Ignore raw data files
@@ -91,3 +90,7 @@ data/**.txt
 *.swp
 *.swo
 .DS_Store
+
+data/code/
+
+.python-version

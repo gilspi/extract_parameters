@@ -31,13 +31,13 @@ INITIAL_GRID = True        # Сетка включена при запуске
 
 CONFIG_OPTIONS = {
     "BJT505": {
-        "model": os.path.join("data", "code", "mextram", "vacode", "bjt505.va"),
-        "spice": os.path.join("data", "examples", "mextram", "ngspice", "npn_ic_ib_is_vb.sp"),
-        "parameters": os.path.join("data", "code", "mextram", "vacode", "parameters.inc")
+        "model": os.path.join("data", "code", "mextram", "bjt505.va"),
+        "spice": os.path.join("data", "examples", "mextram", "npn_ic_ib_is_vb.sp"),
+        "parameters": os.path.join("data", "code", "mextram", "parameters.inc")
     },
     "ASMHEMT": {
-        "model": os.path.join("data", "code", "ASMHEMT", "vacode", "asmhemt.va"),
+        "model": os.path.join("data", "code", "ASMHEMT", "asmhemt.va"),
         "spice": os.path.join("data", "examples", "ASMHEMT", "nfet_id_vd_vg.sp"),
-        "parameters": os.path.join("data", "code", "ASMHEMT", "vacode", "asmhemt.va")
+        "parameters": os.path.join("data", "code", "ASMHEMT", "asmhemt.va")
     }
 }
