@@ -94,3 +94,4 @@ data/**.txt
 data/code/
 
 .python-version
+.qodo

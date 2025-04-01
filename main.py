@@ -1,23 +1,23 @@
-import gi
-gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk
-from gui import NGSPICESimulatorApp
-import gettext
 import os
+import gettext
+
+from graphics import create_app, run_app
+
 
 localedir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'locale')
 lang = gettext.translation('loc', localedir=localedir, languages=['en'], fallback=True)
 lang.install()
 
+
 def main():
     """
-    Основная функция для запуска приложения NGSPICE Simulator с использованием GTK.
+    Основная функция для запуска приложения NGSPICE Simulator.
+    Автоматически выбирает GUI-фреймворк в зависимости от операционной системы:
+    - Windows: PyQt6
+    - Linux/MacOS: GTK
     """
-
-    app = NGSPICESimulatorApp()
-    app.connect("destroy", Gtk.main_quit)
-    app.show_all()
-    Gtk.main()  # Запускаем главный цикл GTK для обработки событий
+    app, window = create_app()
+    run_app(app, window)
 
 if __name__ == "__main__":
-    main()
+    main() 

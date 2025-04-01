@@ -397,7 +397,6 @@ class SimulatorHandlers:
         ax.set_xlim([x_center - x_range / 2, x_center + x_range / 2])
         ax.set_ylim([y_center - y_range / 2, y_center + y_range / 2])
         self.canvas_plot.draw()
-
     def reset_zoom(self, widget):
         """Сбрасывает масштаб графика до исходного состояния и удаляет выделение."""
         if not self.fig or not self.fig.axes:
