@@ -1,7 +1,7 @@
 import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
-from gui import NGSPICESimulatorApp
+from graphics.gui import NGSPICESimulatorApp
 import gettext
 import os
 

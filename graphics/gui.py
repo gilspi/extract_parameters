@@ -13,6 +13,7 @@ from ios_switch import IosStyleSwitch
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_gtk3agg import FigureCanvasGTK3Agg as FigureCanvas
 
+
 class ProgressBar(Gtk.DrawingArea):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
