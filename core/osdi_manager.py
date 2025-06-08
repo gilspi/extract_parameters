@@ -2,7 +2,7 @@ import os
 import platform
 import subprocess
 
-from config import OSDILIBS_PATH
+from settings import OSDILIBS_PATH
 
 
 class OSDIManager:

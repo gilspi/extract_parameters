@@ -9,12 +9,10 @@ from gi.repository import Gtk, GLib, Gdk
 
 from ios_switch import IosStyleSwitch
 
-from core.file_manager import FileManager
-from core.simulation_runner import SimulationRunner
-from plotting.plot_simulation import SimulationManager
-from utils.parameter_parser import ParameterParser, FileIgnoreParamsLoader
-from config import MODEL_CODE_PATH, SPICE_EXAMPLES_PATH, IGNORE_PARAMS_FILE, OUTPUT_DATA_PATH, SIMULATION_RAW_DATA_PATH, CONFIG_OPTIONS, PICS_PATH
-from utils import shorten_file_path
+from core import FileManager, SimulationRunner
+from plotting import SimulationManager
+from utils import ParameterParser, FileIgnoreParamsLoader, shorten_file_path
+from settings import MODEL_CODE_PATH, SPICE_EXAMPLES_PATH, IGNORE_PARAMS_FILE, OUTPUT_DATA_PATH, SIMULATION_RAW_DATA_PATH, CONFIG_OPTIONS, PICS_PATH
 
 
 class SimulatorHandlers:

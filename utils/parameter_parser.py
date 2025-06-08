@@ -96,7 +96,7 @@ class ParameterParser:
 
 
 if __name__ == "__main__":
-    from config import IGNORE_PARAMS_FILE, SIMULATION_RAW_DATA_PATH, REFERENCE_MODEL_CODE_PATH
+    from settings.config import IGNORE_PARAMS_FILE, SIMULATION_RAW_DATA_PATH, REFERENCE_MODEL_CODE_PATH
     input_file = "/home/gilspi/Desktop/progs/extract_parameters/data/reference/asmhemt_reference_data.txt"
     output_directory = REFERENCE_MODEL_CODE_PATH
     os.makedirs(output_directory, exist_ok=True)

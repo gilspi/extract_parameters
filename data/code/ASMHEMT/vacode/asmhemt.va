@@ -560,7 +560,7 @@ module asmhemt(d,g,s,b,dt);
     `MPRoo( idio           ,1.0e0          ,"A"           ,0.0         ,inf         ," Saturation Current parameter for trap model" )
     `MPRoo( atrapvoff      ,0.1            ,""            ,-inf        ,inf         ," Voff change due to trapping effects" )
     `MPRoo( btrapvoff      ,0.3            ,""            ,-inf        ,inf         ," Voff change with input power due to trapping effects" )
-    `MPRoo( atrapeta0      ,0              ,""            ,-inf        ,inf         ," DIBL change due to trapping effects" )
+    `MPRoo( atrapeta0      ,0.0              ,""            ,-inf        ,inf         ," DIBL change due to trapping effects" )
     `MPRoo( btrapeta0      ,0.05           ,""            ,-inf        ,inf         ," DIBL change with input power due to trapping effects" )
     `MPRoo( atraprs        ,0.1            ,""            ,-inf        ,inf         ," Rs change due to trapping effects" )
     `MPRoo( btraprs        ,0.6            ,""            ,-inf        ,inf         ," Rs change with input power due to trapping effects" )
@@ -709,7 +709,7 @@ module asmhemt(d,g,s,b,dt);
     `MPRoo( noia           ,15.0e-12       ,""            ,-inf        ,inf         ," Flicker Noise parameter" )
     `MPRco( noib           ,0.0            ,""            ,0           ,inf         ," Flicker Noise parameter" )
     `MPRco( noic           ,0.0            ,""            ,0           ,inf         ," Flicker Noise parameter" )
-    `MPRoo( ef             ,1              ,""            ,0           ,inf         ," Exponent of frequency---Determines slope in log plot" )
+    `MPRoo( ef             ,1.0              ,""            ,0           ,inf         ," Exponent of frequency---Determines slope in log plot" )
     `MPRoo( tnsc           ,1.0e27         ,""            ,0           ,inf         ," Thermal noise scaling parameter" )
 ////////// gdsmin For Convergence //////////
     `MPRoo( gdsmin         ,1.0e-12        ,"S"           ,0           ,inf          ,"Shunt conductance across channel and all field plates" )

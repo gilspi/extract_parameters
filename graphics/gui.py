@@ -1,17 +1,17 @@
 import os
 import math
-import cairo  # используется для создания оффскрин-сурфейса
-import gi
+import cairo
 
-gi.require_version("Gtk", "3.0")  # Требуемая версия GTK
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk, GLib
-from config import DIRECTORY, INITIAL_LOG_SCALE, INITIAL_GRID
-from graphics.handlers import SimulatorHandlers
-from graphics.model_selector import ModelSelectorHandler
-from ios_switch import IosStyleSwitch
 
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_gtk3agg import FigureCanvasGTK3Agg as FigureCanvas
+
+from settings import DIRECTORY, INITIAL_LOG_SCALE, INITIAL_GRID
+from . import SimulatorHandlers, ModelSelectorHandler
+from ios_switch import IosStyleSwitch
 
 
 class ProgressBar(Gtk.DrawingArea):
@@ -319,7 +319,7 @@ class NGSPICESimulatorApp(Gtk.Window):
         """
         css_provider = Gtk.CssProvider()
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        css_file = os.path.join(current_dir, "graphics", "style.css")
+        css_file = os.path.join(current_dir, "style.css")
         css_provider.load_from_path(css_file)
         Gtk.StyleContext.add_provider_for_screen(
             Gdk.Screen.get_default(), css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)

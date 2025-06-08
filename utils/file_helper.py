@@ -3,7 +3,7 @@ import re
 from typing import Optional
 
 
-import config
+from settings import *
 
 
 def find_file(filename: str, search_path: Optional[str] = None) -> Optional[str] :
@@ -15,7 +15,7 @@ def find_file(filename: str, search_path: Optional[str] = None) -> Optional[str]
     :return: Путь к найденному файлу или None, если файл не найден.
     """
     if search_path is None:
-        search_path = config.PROJECT_PATH
+        search_path = PROJECT_PATH
 
     for root, dirs, files in os.walk(search_path):
         if filename in files:

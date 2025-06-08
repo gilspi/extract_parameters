@@ -2,6 +2,7 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk, GObject, GLib
 
+
 class IosStyleSwitch(Gtk.DrawingArea):
     __gsignals__ = {
         'state-set': (GObject.SIGNAL_RUN_FIRST, None, (bool,))

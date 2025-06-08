@@ -1,12 +1,10 @@
 import os
 import subprocess
 
-from utils.parameter_parser import ParameterParser
-from utils.utils import find_case_insensitive_path, remove_reference_line, duplicate_print_line, add_or_update_simulation_data_path_in_file
-from core.osdi_manager import OSDIManager
-from plotting.plot_simulation import SimulationManager
+from utils import remove_reference_line, duplicate_print_line, add_or_update_simulation_data_path_in_file
+from core import OSDIManager
 
-from config import REFERENCE_MODEL_CODE_PATH, SPICE_EXAMPLES_PATH, SIMULATION_RAW_DATA_PATH
+from settings import REFERENCE_MODEL_CODE_PATH, SPICE_EXAMPLES_PATH
 
 
 class SimulationRunner:

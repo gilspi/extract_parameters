@@ -4,7 +4,7 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GLib
 
 
-from config import CONFIG_OPTIONS
+from settings import CONFIG_OPTIONS
 
 
 class ModelSelectorHandler:
