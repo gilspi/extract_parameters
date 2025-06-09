@@ -1,7 +1,8 @@
+import re
+from typing import Protocol
+
 import pandas as pd
 import numpy as np
-from typing import List, Optional, Protocol
-import re
 
 
 class DataLoader(Protocol):

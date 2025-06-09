@@ -1,9 +1,11 @@
+import os
+
+import gettext
 import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
-from graphics.gui import NGSPICESimulatorApp
-import gettext
-import os
+
+from graphics import NGSPICESimulatorApp
 
 
 localedir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'locale')

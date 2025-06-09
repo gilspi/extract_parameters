@@ -1,29 +1,37 @@
-import os
+import os  # TODO: remove
 
-"""
-TODO: вместо .txt использовать .csv
-"""
+from pathlib import Path
+from pydantic import BaseModel, Field
+
+
+class Config(BaseModel):
+    root_dir: Field()
+    osdilibs_dir: Field()
+    ignore_params_path: Field()
+    simulation_raw_data_path: Field()
+    model_code_dir: Field()
+    pics_path: Field()
+    spice_dir: Field()
+    reference_dir: Field()
+    output_data_dir: Field()
+
+
+class Model(Config):
+    model: Field()
+    spice: Field()
+    parameters: Field()
+
 
 PROJECT_PATH = os.path.dirname(os.path.abspath(__file__))  # определение корневого пути проекта
-# print(PROJECT_PATH)
 OSDILIBS_PATH = os.path.join(PROJECT_PATH, "data/osdilibs/")
-# print(OSDILIBS_PATH)
 IGNORE_PARAMS_FILE = os.path.join(PROJECT_PATH, "data/ignore_params.txt")
-# print(IGNORE_PARAMS_FILE)
 SIMULATION_RAW_DATA_PATH = os.path.join(PROJECT_PATH, "data/raw/")  # путь к точкам на графике, после выполненной симуляции
-# print(SIMULATION_DATA_PATH)
 PICS_PATH = os.path.join(PROJECT_PATH, "pics/")
-# print(PICS_PATH)
 MODEL_CODE_PATH = os.path.join(PROJECT_PATH, "data/code/")
-# print(MODEL_CODE_PATH)
 SPICE_EXAMPLES_PATH = os.path.join(PROJECT_PATH, "data/examples/")
-# print(SPICE_EXAMPLES_PATH)
 REFERENCE_MODEL_CODE_PATH = os.path.join(PROJECT_PATH, "data/reference/")
-# print(REFERENCE_MODEL_CODE_PATH)
 OUTPUT_DATA_PATH = os.path.join(os.path.expanduser("~"), "Documents", "SimulationResults")
-# print(OUTPUT_DATA_PATH)
 DIRECTORY = [REFERENCE_MODEL_CODE_PATH, SIMULATION_RAW_DATA_PATH, OUTPUT_DATA_PATH, PICS_PATH]
-# print(DIRECTORY)
 
 INITIAL_LOG_SCALE = False  # Логарифмическая шкала выключена при запуске
 INITIAL_GRID = True        # Сетка включена при запуске
