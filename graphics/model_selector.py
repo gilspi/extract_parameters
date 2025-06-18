@@ -11,6 +11,7 @@ class ModelSelectorHandler:
     Создаёт комбобокс для выбора конфигурации модели.
     При изменении выбранной модели вызывается set_configuration у SimulatorHandlers.
     """
+
     def __init__(self, app, handlers):
         self.app = app
         self.handlers = handlers

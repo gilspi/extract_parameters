@@ -1,7 +1,11 @@
 import os
 import subprocess
 
-from utils import remove_reference_line, duplicate_print_line, add_or_update_simulation_data_path_in_file
+from utils import (
+    remove_reference_line,
+    duplicate_print_line,
+    add_or_update_simulation_data_path_in_file,
+)
 from core import OSDIManager
 
 from settings import REFERENCE_MODEL_CODE_PATH, SPICE_EXAMPLES_PATH
@@ -29,8 +33,10 @@ class SimulationRunner:
         spice_file = os.path.join(SPICE_EXAMPLES_PATH, model_name, f"{model_name}.sp")
 
         if not os.path.exists(spice_file):
-            raise FileNotFoundError(f"Схема для модели {model_name} не найдена: {spice_file}")
-        
+            raise FileNotFoundError(
+                f"Схема для модели {model_name} не найдена: {spice_file}"
+            )
+
         return spice_file
 
     def set_model(self, va_model_path):
@@ -46,7 +52,9 @@ class SimulationRunner:
             total_step = 5
             current_step = 0
 
-            self.osdi_manager = OSDIManager(model_path=self.model_path, vamodel_name=self.vamodel_name)
+            self.osdi_manager = OSDIManager(
+                model_path=self.model_path, vamodel_name=self.vamodel_name
+            )
             yield (current_step := current_step + 1) / total_step  # 20%
 
             self.osdi_manager.rebuild_osdi()
@@ -56,16 +64,29 @@ class SimulationRunner:
             yield (current_step := current_step + 1) / total_step  # 60%
 
             model_name = self.vamodel_name[:-3]
-            reference_result_file = os.path.join(REFERENCE_MODEL_CODE_PATH, f"{model_name}_reference_data.txt")
+            reference_result_file = os.path.join(
+                REFERENCE_MODEL_CODE_PATH, f"{model_name}_reference_data.txt"
+            )
 
-            if not os.path.exists(reference_result_file) or os.path.getsize(reference_result_file) == 0:
+            if (
+                not os.path.exists(reference_result_file)
+                or os.path.getsize(reference_result_file) == 0
+            ):
                 # print("Эталонные данные отсутствуют. Добавляем строку в схему и запускаем симуляцию.")
-                duplicate_print_line(spice_file=spice_file, new_path=reference_result_file)
-                process_reference = subprocess.Popen(["ngspice", "-b", spice_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                duplicate_print_line(
+                    spice_file=spice_file, new_path=reference_result_file
+                )
+                process_reference = subprocess.Popen(
+                    ["ngspice", "-b", spice_file],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                )
                 stdout, stderr = process_reference.communicate()
 
                 if process_reference.returncode != 0:
-                    raise RuntimeError(f"Ошибка при создании эталонных данных:\n{stderr.decode('utf-8')}")
+                    raise RuntimeError(
+                        f"Ошибка при создании эталонных данных:\n{stderr.decode('utf-8')}"
+                    )
 
                 # print(f"Эталонные данные успешно созданы: {reference_result_file}")
                 remove_reference_line(spice_file=spice_file)
@@ -76,10 +97,16 @@ class SimulationRunner:
                 with open(self.user_result_file, "w") as file:
                     pass
 
-            add_or_update_simulation_data_path_in_file(spice_file, self.user_result_file)
+            add_or_update_simulation_data_path_in_file(
+                spice_file, self.user_result_file
+            )
             # print("Запускаем симуляцию с пользовательскими параметрами.")
 
-            process_user = subprocess.Popen(["ngspice", "-b", spice_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            process_user = subprocess.Popen(
+                ["ngspice", "-b", spice_file],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
             stdout, stderr = process_user.communicate()
 
             if process_user.returncode != 0:
@@ -87,7 +114,10 @@ class SimulationRunner:
 
             yield (current_step := current_step + 1) / total_step  # 80%
 
-            if not os.path.exists(self.user_result_file) or os.path.getsize(self.user_result_file) == 0:
+            if (
+                not os.path.exists(self.user_result_file)
+                or os.path.getsize(self.user_result_file) == 0
+            ):
                 raise RuntimeError(
                     "Simulation is complete, but the data file is missing or empty. "
                     "Check the selected SP file and the model of the selected transistor."
@@ -108,4 +138,3 @@ class SimulationRunner:
             error_message = f"Ошибка симуляции: {str(e)}"
             # print(error_message)
             yield error_message
-

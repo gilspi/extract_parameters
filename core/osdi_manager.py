@@ -15,7 +15,7 @@ class OSDIManager:
 
         if not self.vamodel_name:
             raise FileNotFoundError("Файл .va не выбран для модели.")
-        
+
         current_os = platform.system()
         if current_os == "Windows":
             command = "openvaf.exe"
@@ -23,9 +23,11 @@ class OSDIManager:
             command = "./openvaf"
         else:
             raise OSError("Unsupported operating system")
-        
+
         try:
-            subprocess.run([command, self.vamodel_name], cwd=self.model_path, check=True)
+            subprocess.run(
+                [command, self.vamodel_name], cwd=self.model_path, check=True
+            )
         except subprocess.CalledProcessError as e:
             raise RuntimeError(f"Ошибка при пересборке osdi-модели: {e}")
 
@@ -35,7 +37,9 @@ class OSDIManager:
         source_path = os.path.join(self.model_path, osdi_name)
 
         if not os.path.exists(source_path):
-            raise FileNotFoundError(f"Файл {osdi_name} не найден в {self.model_path} после пересборки.")
+            raise FileNotFoundError(
+                f"Файл {osdi_name} не найден в {self.model_path} после пересборки."
+            )
 
         os.makedirs(OSDILIBS_PATH, exist_ok=True)
         dst = os.path.join(OSDILIBS_PATH, osdi_name)

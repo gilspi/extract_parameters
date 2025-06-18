@@ -1,12 +1,11 @@
 import gi
+
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk, GObject, GLib
 
 
 class IosStyleSwitch(Gtk.DrawingArea):
-    __gsignals__ = {
-        'state-set': (GObject.SIGNAL_RUN_FIRST, None, (bool,))
-    }
+    __gsignals__ = {"state-set": (GObject.SIGNAL_RUN_FIRST, None, (bool,))}
 
     def __init__(self, active=False, size=(50, 25)):
         super().__init__()
@@ -29,7 +28,8 @@ class IosStyleSwitch(Gtk.DrawingArea):
         bg_color_active = (0.3, 0.8, 0.4)
         bg_color_inactive = (0.6, 0.6, 0.6)
         bg_color = [
-            bg_color_inactive[i] + (bg_color_active[i] - bg_color_inactive[i]) * self.animation_progress
+            bg_color_inactive[i]
+            + (bg_color_active[i] - bg_color_inactive[i]) * self.animation_progress
             for i in range(3)
         ]
 
@@ -42,7 +42,9 @@ class IosStyleSwitch(Gtk.DrawingArea):
         # Ручка переключателя
         handle_x_start = radius
         handle_x_end = width - radius
-        handle_x = handle_x_start + (handle_x_end - handle_x_start) * self.animation_progress
+        handle_x = (
+            handle_x_start + (handle_x_end - handle_x_start) * self.animation_progress
+        )
 
         cr.set_source_rgb(1, 1, 1)  # Белый цвет для ручки
         cr.arc(handle_x, radius, handle_radius, 0, 2 * 3.14)
@@ -51,7 +53,7 @@ class IosStyleSwitch(Gtk.DrawingArea):
     def on_toggle(self, widget, event):
         self.active = not self.active
         self.start_animation()
-        self.emit('state-set', self.active)
+        self.emit("state-set", self.active)
         self.queue_draw()
         return True
 
@@ -65,8 +67,9 @@ class IosStyleSwitch(Gtk.DrawingArea):
 
         def animate():
             self.animation_progress += step
-            if (step > 0 and self.animation_progress >= target_progress) or \
-            (step < 0 and self.animation_progress <= target_progress):
+            if (step > 0 and self.animation_progress >= target_progress) or (
+                step < 0 and self.animation_progress <= target_progress
+            ):
                 self.animation_progress = target_progress
                 self.queue_draw()
                 self.animating = False

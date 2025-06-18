@@ -3,6 +3,7 @@ import math
 import cairo
 
 import gi
+
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk, GLib
 
@@ -18,9 +19,9 @@ class ProgressBar(Gtk.DrawingArea):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.progress_fraction = 0.0  # Прогресс от 0 до 1
-        self.dot_phase = 0.0          # Фаза анимации для индикатора (не сбрасывается, используется непрерывно)
-        self.animating = False        # Флаг анимации
-        self.animation_id = None      # ID таймера анимации
+        self.dot_phase = 0.0  # Фаза анимации для индикатора (не сбрасывается, используется непрерывно)
+        self.animating = False  # Флаг анимации
+        self.animation_id = None  # ID таймера анимации
         self.connect("draw", self.on_draw)
         self.connect("configure-event", self.on_configure)
         self._cached_background = None
@@ -56,10 +57,10 @@ class ProgressBar(Gtk.DrawingArea):
     def draw_rounded_rect(self, cr, x, y, w, h, r):
         # Рисует прямоугольник с округлёнными углами с радиусом r
         cr.new_sub_path()
-        cr.arc(x + w - r, y + r, r, -math.pi/2, 0)
-        cr.arc(x + w - r, y + h - r, r, 0, math.pi/2)
-        cr.arc(x + r, y + h - r, r, math.pi/2, math.pi)
-        cr.arc(x + r, y + r, r, math.pi, 3*math.pi/2)
+        cr.arc(x + w - r, y + r, r, -math.pi / 2, 0)
+        cr.arc(x + w - r, y + h - r, r, 0, math.pi / 2)
+        cr.arc(x + r, y + h - r, r, math.pi / 2, math.pi)
+        cr.arc(x + r, y + r, r, math.pi, 3 * math.pi / 2)
         cr.close_path()
 
     def on_draw(self, widget, cr):
@@ -67,10 +68,16 @@ class ProgressBar(Gtk.DrawingArea):
         height = widget.get_allocated_height()
 
         # Кэширование статического фона прогресс-бара
-        if self._cached_background is None or self._cached_width != width or self._cached_height != height:
+        if (
+            self._cached_background is None
+            or self._cached_width != width
+            or self._cached_height != height
+        ):
             self._cached_width = width
             self._cached_height = height
-            self._cached_background = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
+            self._cached_background = cairo.ImageSurface(
+                cairo.FORMAT_ARGB32, width, height
+            )
             bg_cr = cairo.Context(self._cached_background)
             radius = height / 2
             bg_cr.set_source_rgb(0.85, 0.85, 0.85)
@@ -121,14 +128,18 @@ class ProgressBar(Gtk.DrawingArea):
         # которая плавно меняется от 0 до 1 и обратно за период 2π.
         t = (1 - math.cos(self.dot_phase)) / 2
 
-        current_width = dot_diameter + (full_width - dot_diameter) * math.sin(math.pi * t)
+        current_width = dot_diameter + (full_width - dot_diameter) * math.sin(
+            math.pi * t
+        )
 
         text_center = text_x + full_width / 2
         indicator_x = text_center - current_width / 2
 
         cr.set_source_rgb(0.6, 0.6, 0.6)
         corner_radius = indicator_height / 2
-        self.draw_rounded_rect(cr, indicator_x, indicator_y, current_width, indicator_height, corner_radius)
+        self.draw_rounded_rect(
+            cr, indicator_x, indicator_y, current_width, indicator_height, corner_radius
+        )
         cr.fill()
 
         return False
@@ -139,11 +150,15 @@ class NGSPICESimulatorApp(Gtk.Window):
         super().__init__(title=_("NGSPICE Simulator"))
         self.set_default_size(1360, 740)
         self.set_border_width(10)
-        self.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0.73, 0.76, 0.79, 1.0))  #BAC3C9
+        self.override_background_color(
+            Gtk.StateFlags.NORMAL, Gdk.RGBA(0.73, 0.76, 0.79, 1.0)
+        )  # BAC3C9
 
-        self.file_button = Gtk.Button(label=_("File:/..."))  # кнопка для отображения пути файла
+        self.file_button = Gtk.Button(
+            label=_("File:/...")
+        )  # кнопка для отображения пути файла
         self.file_button.get_style_context().add_class("ios-button")
-        
+
         self.params_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
 
         self.fig, self.ax = plt.subplots()
@@ -156,18 +171,19 @@ class NGSPICESimulatorApp(Gtk.Window):
 
         self.progress_bar = ProgressBar()
         self.handlers = SimulatorHandlers(
-                            self.params_box,
-                            self.file_button,
-                            self.fig,
-                            self.ax,
-                            self.canvas_plot,
-                            self.progress_bar,
-                            parent_window=self)  # инициализация обработчиков
+            self.params_box,
+            self.file_button,
+            self.fig,
+            self.ax,
+            self.canvas_plot,
+            self.progress_bar,
+            parent_window=self,
+        )  # инициализация обработчиков
 
         self.model_selector = ModelSelectorHandler(self, self.handlers)
 
         self.__setup_directories()  # создание необходимых директорий, если они не существуют
-        
+
         self.create_interface()  # создание интерфейса
         self.apply_styles()  # стили кнопки для строки файла
 
@@ -178,7 +194,12 @@ class NGSPICESimulatorApp(Gtk.Window):
         if visual and self.get_screen().is_composited():
             self.set_visual(visual)
 
-        self.canvas_plot.add_events(Gdk.EventMask.SCROLL_MASK | Gdk.EventMask.BUTTON_PRESS_MASK | Gdk.EventMask.BUTTON_RELEASE_MASK | Gdk.EventMask.POINTER_MOTION_MASK)
+        self.canvas_plot.add_events(
+            Gdk.EventMask.SCROLL_MASK
+            | Gdk.EventMask.BUTTON_PRESS_MASK
+            | Gdk.EventMask.BUTTON_RELEASE_MASK
+            | Gdk.EventMask.POINTER_MOTION_MASK
+        )
         self.canvas_plot.connect("scroll-event", self.handlers.on_scroll)
         self.canvas_plot.connect("button-press-event", self.handlers.on_press)
         self.canvas_plot.connect("button-release-event", self.handlers.on_release)
@@ -194,7 +215,9 @@ class NGSPICESimulatorApp(Gtk.Window):
 
     def create_interface(self):
         """Создание интерфейса."""
-        container = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)  # основной контейнер с горизонтальной ориентацией для размещения левой и правой панелей
+        container = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=10
+        )  # основной контейнер с горизонтальной ориентацией для размещения левой и правой панелей
         self.add(container)
 
         left_panel = self.create_left_panel()
@@ -207,7 +230,9 @@ class NGSPICESimulatorApp(Gtk.Window):
 
     def create_left_panel(self):
         """Создает левую панель с кнопками, параметрами и строкой файла."""
-        left_panel = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10, width_request=300)
+        left_panel = Gtk.Box(
+            orientation=Gtk.Orientation.VERTICAL, spacing=10, width_request=300
+        )
         left_panel.pack_start(self.model_selector.get_widget(), False, False, 0)
 
         action_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
@@ -221,9 +246,9 @@ class NGSPICESimulatorApp(Gtk.Window):
 
         buttons = [
             (_("Применить изменения"), self.handlers.apply_changes),
-            (_("Запустить симуляцию"), self.handlers.start_simulation)
+            (_("Запустить симуляцию"), self.handlers.start_simulation),
         ]
-        
+
         for idx, (label, callback) in enumerate(buttons):
             button = Gtk.Button(label=label)
             button.connect("clicked", callback)
@@ -242,7 +267,9 @@ class NGSPICESimulatorApp(Gtk.Window):
 
     def create_right_panel(self):
         """Создает правую панель с графиком и прогресс-баром."""
-        right_panel = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0, hexpand=True)
+        right_panel = Gtk.Box(
+            orientation=Gtk.Orientation.VERTICAL, spacing=0, hexpand=True
+        )
 
         self.progress_bar.set_size_request(200, 30)
         self.progress_bar.progress_fraction = 0.0
@@ -256,7 +283,9 @@ class NGSPICESimulatorApp(Gtk.Window):
         graph_container.get_style_context().add_class("no-shadow-box")
         graph_container.pack_start(canvas_container, True, True, 10)
 
-        control_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5, valign=Gtk.Align.CENTER)
+        control_box = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=5, valign=Gtk.Align.CENTER
+        )
         for margin in ("top", "bottom", "start", "end"):
             getattr(control_box, f"set_margin_{margin}")(5)
 
@@ -265,7 +294,7 @@ class NGSPICESimulatorApp(Gtk.Window):
 
         left_controls = [
             (_("Log Scale:"), self.log_scale_switch),
-            (_("Grid:"), self.grid_switch)
+            (_("Grid:"), self.grid_switch),
         ]
 
         for label_text, widget in left_controls:
@@ -322,4 +351,5 @@ class NGSPICESimulatorApp(Gtk.Window):
         css_file = os.path.join(current_dir, "style.css")
         css_provider.load_from_path(css_file)
         Gtk.StyleContext.add_provider_for_screen(
-            Gdk.Screen.get_default(), css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
+            Gdk.Screen.get_default(), css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER
+        )

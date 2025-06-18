@@ -5,10 +5,10 @@ from typing import Optional
 from settings import *
 
 
-def find_file(filename: str, search_path: Optional[str] = None) -> Optional[str] :
+def find_file(filename: str, search_path: Optional[str] = None) -> Optional[str]:
     """
     Функция для поиска файла в указанной директории или в корневой директории проекта.
-    
+
     :param filename: Имя файла для поиска.
     :param search_path: Директория для поиска (если None, используется корень проекта).
     :return: Путь к найденному файлу или None, если файл не найден.
@@ -26,17 +26,20 @@ def modify_parameters(file_path: str, params_to_modify: dict):
     """
     Функция изменяет параметры модели в parameters.inc
     """
-    with open(file_path, 'r') as file:
+    with open(file_path, "r") as file:
         content = file.read()
 
     for param, value in params_to_modify.items():
         regex = rf"(`\w+\(\s*{param}\s*,\s*)([^,]+)"
+
         def replace_value(match):
             return match.group(1) + value
+
         content = re.sub(regex, replace_value, content)
-        
-    with open(file_path, 'w') as file:
+
+    with open(file_path, "w") as file:
         file.write(content)
+
 
 def find_case_insensitive_path(base_path: str, target_name: str) -> str:
     """
@@ -48,7 +51,9 @@ def find_case_insensitive_path(base_path: str, target_name: str) -> str:
             for name in dirs + files:
                 if name.lower() == target_name.lower():
                     return os.path.join(root, name)
-        raise FileNotFoundError(f"Файл или директория {target_name} не найдены в {base_path}.")
+        raise FileNotFoundError(
+            f"Файл или директория {target_name} не найдены в {base_path}."
+        )
     except Exception as e:
         raise RuntimeError(f"Ошибка при поиске файла: {e}")
 
@@ -86,7 +91,7 @@ def duplicate_print_line(spice_file: str, new_path: str):
         if not line_duplicated:
             print("Строка, начинающаяся с 'print', не найдена.")
             return
-        
+
         with open(spice_file, "w") as file:
             file.writelines(updated_lines)
 
@@ -107,9 +112,7 @@ def remove_reference_line(spice_file: str):
         with open(spice_file, "r") as file:
             lines = file.readlines()
 
-        updated_lines = [
-            line for line in lines if "/reference/" not in line
-        ]
+        updated_lines = [line for line in lines if "/reference/" not in line]
 
         with open(spice_file, "w") as file:
             file.writelines(updated_lines)
@@ -118,6 +121,7 @@ def remove_reference_line(spice_file: str):
 
     except Exception as e:
         raise RuntimeError(f"Ошибка при удалении строки: {e}")
+
 
 def add_or_update_simulation_data_path_in_file(scheme_file_path, simulation_data_path):
     """
@@ -128,12 +132,12 @@ def add_or_update_simulation_data_path_in_file(scheme_file_path, simulation_data
         simulation_data_path (str): Путь для сохранения данных симуляции.
     """
     try:
-        with open(scheme_file_path, 'r') as scheme_file:
+        with open(scheme_file_path, "r") as scheme_file:
             lines = scheme_file.readlines()
 
         print_line = f"*print [add-pointers from plot and do other print like that] > {simulation_data_path}\n"
         print_line_found = False
-        
+
         for i, line in enumerate(lines):
             if line.strip() == print_line.strip():
                 print_line_found = True
@@ -146,7 +150,7 @@ def add_or_update_simulation_data_path_in_file(scheme_file_path, simulation_data
         if not print_line_found:
             endc_index = None
             for i, line in enumerate(lines):
-                if '.endc' in line:
+                if ".endc" in line:
                     endc_index = i
                     break
 
@@ -155,10 +159,12 @@ def add_or_update_simulation_data_path_in_file(scheme_file_path, simulation_data
 
             lines.insert(endc_index, print_line)
 
-        with open(scheme_file_path, 'w') as scheme_file:
+        with open(scheme_file_path, "w") as scheme_file:
             scheme_file.writelines(lines)
 
-        print(f"Строка с путем к файлу {simulation_data_path} успешно добавлена или обновлена в {scheme_file_path}")
+        print(
+            f"Строка с путем к файлу {simulation_data_path} успешно добавлена или обновлена в {scheme_file_path}"
+        )
 
     except Exception as e:
         print(f"Ошибка при добавлении или обновлении строки в файл: {e}")
@@ -176,6 +182,6 @@ def shorten_file_path(full_path, max_length=40):
     remaining = max_length - len(filename) - 3
     if remaining < 1:
         # Если места совсем мало, возвращаем только имя файла с троеточием спереди
-        return "..." + filename[-(max_length-3):]
+        return "..." + filename[-(max_length - 3) :]
     shortened = full_path[:remaining] + "..." + filename
     return shortened
